@@ -13,6 +13,9 @@ using StringTools;
 
 class Note extends FlxSprite
 {
+	public static var usedIDs:Array<Int> = [-1];
+	public static var hitIDs:Array<Int> = [-1];
+
 	public var strumTime:Float = 0;
 
 	public var mustPress:Bool = false;
@@ -22,6 +25,8 @@ class Note extends FlxSprite
 	public var tooLate:Bool = false;
 	public var wasGoodHit:Bool = false;
 	public var prevNote:Note;
+
+	public var jumpID:Int = -1;
 
 	public var sustainLength:Float = 0;
 	public var isSustainNote:Bool = false;
