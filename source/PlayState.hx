@@ -2088,43 +2088,45 @@ class PlayState extends MusicBeatState
 
 			var daRating = daNote.rating;
 
-			var healthCoefficient:Float = daNote.sustainLength > 0.0 ? 0.5 : 1.0;
-
-			if(daNote.jumpID != -1 && Note.hitIDs.contains(daNote.jumpID))
+			var healthCoefficient:Float = daNote.startsSustain ? 0.5 : 1.0;
+			var addHealth:Float = 0;
+			switch(daRating)
 			{
-				switch(daRating)
-				{
-					case 'shit':
-						combo = 0;
-						score = -200 * healthCoefficient;
-						health -= maxHealth * 0.075;
-						ss = false;
-						shits++;
-					case 'bad':
-						daRating = 'bad';
-						score = -100 * healthCoefficient;
-						health -= maxHealth * 0.025;
-						combo = 0;
-						ss = false;
-						bads++;
-					case 'good':
-						daRating = 'good';
-						score = 200 * healthCoefficient;
-						health += maxHealth * healthCoefficient * 0.02;
-						ss = false;
-						goods++;
-					case 'sick':
-						if (health < 2)
-							health += maxHealth * healthCoefficient * 0.04;
-						score = 350;
-						sicks++;
-					case 'boom':
-						daRating = 'boom';
-						health -= maxHealth * 0.12;
-						score = -350;
-						bombs++;
-				}
+				case 'shit':
+					combo = 0;
+					score = -200 * healthCoefficient;
+					addHealth -= maxHealth * 0.075;
+					ss = false;
+					shits++;
+				case 'bad':
+					daRating = 'bad';
+					score = -100 * healthCoefficient;
+					addHealth -= maxHealth * 0.025;
+					combo = 0;
+					ss = false;
+					bads++;
+				case 'good':
+					daRating = 'good';
+					score = 200 * healthCoefficient;
+					addHealth += maxHealth * healthCoefficient * 0.02;
+					ss = false;
+					goods++;
+				case 'sick':
+					if (health < 2)
+						addHealth += maxHealth * healthCoefficient * 0.04;
+					score = 350;
+					sicks++;
+				case 'boom':
+					daRating = 'boom';
+					addHealth -= maxHealth * 0.12;
+					score = -350;
+					bombs++;
+			}
+			
+			if((daNote.jumpID != -1 && !Note.hitIDs.contains(daNote.jumpID)) || daNote.jumpID == -1)
+			{
 				songScore += Math.round(score);
+				health += addHealth;
 			}
 
 			var pixelShitPart1:String = "";
@@ -2323,7 +2325,6 @@ class PlayState extends MusicBeatState
 			});
 	
 			curSection += 1;
-			
 		}
 
 	public function NearlyEquals(value1:Float, value2:Float, unimportantDifference:Float = 10):Bool
@@ -2446,7 +2447,7 @@ class PlayState extends MusicBeatState
 			});
 
 			possibleNotes.sort((a, b) -> Std.int(a.strumTime - b.strumTime));
-
+					
 			while(hasDuplicateNoteData(possibleNotes))
 			{
 				for(i in 0...possibleNotes.length)
@@ -2485,8 +2486,6 @@ class PlayState extends MusicBeatState
 							while(Note.usedIDs.contains(newID))
 							{
 								newID++;
-								//trace("new id");
-								//trace(newID);
 							}
 							note1.jumpID = newID;
 							note2.jumpID = newID;
@@ -2507,10 +2506,7 @@ class PlayState extends MusicBeatState
 						if(note.jumpID != -1 && !Note.hitIDs.contains(note.jumpID))
 						{
 							Note.hitIDs.push(note.jumpID);
-							trace("1");
 						}
-						if(note.jumpID != -1 && Note.hitIDs.contains(note.jumpID))
-							trace("2");
 					}
 				}
 				else if(!note.isSustainNote && note.noteType == 1)
@@ -2527,7 +2523,7 @@ class PlayState extends MusicBeatState
 					{
 						if(note.isFinalSustain)
 						{
-							songScore += 175;
+							songScore += 100;
 							health += maxHealth * 0.025;
 						}
 						anyGoodHits = true;

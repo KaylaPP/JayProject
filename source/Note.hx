@@ -28,6 +28,7 @@ class Note extends FlxSprite
 
 	public var jumpID:Int = -1;
 
+	public var startsSustain:Bool = false;
 	public var sustainLength:Float = 0;
 	public var isSustainNote:Bool = false;
 
@@ -219,6 +220,11 @@ class Note extends FlxSprite
 	override function update(elapsed:Float)
 	{
 		super.update(elapsed);
+
+		if(Math.floor(sustainLength) > 0) 
+			startsSustain = true;
+		else
+			startsSustain = false;
 
 		if (mustPress)
 		{
