@@ -58,6 +58,7 @@ class PlayState extends MusicBeatState
 	public static var shits:Int = 0;
 	public static var bads:Int = 0;
 	public static var goods:Int = 0;
+	public static var cools:Int = 0;
 	public static var sicks:Int = 0;
 
 	public static var songPosBG:FlxSprite;
@@ -188,12 +189,11 @@ class PlayState extends MusicBeatState
 		noteGoInsane = false;
 		downscroll = FlxG.save.data.downscroll;
 
-		Conductor.safeFrames = 10; // 166ms hit window (j1)
-
 		if (FlxG.sound.music != null)
 			FlxG.sound.music.stop();
 
 		sicks = 0;
+		cools = 0;
 		bads = 0;
 		shits = 0;
 		goods = 0;
@@ -1626,9 +1626,9 @@ class PlayState extends MusicBeatState
 			scoreTxt.text = "Score:" + songScore;
 		}
 
-		hitTxt.text = "Sicks:  " + sicks + "\nGoods:  " + goods + "\nBads:   " + bads + "\nShits:  " + shits + "\nMisses: " + misses + "\nBombs:  " + bombs;
+		hitTxt.text = "Sicks:  " + sicks + "\nCools:  " + cools + "\nGoods:  " + goods + "\nBads:   " + bads + "\nShits:  " + shits + "\nMisses: " + misses + "\nBombs:  " + bombs;
 		hitTxt.updateHitbox();
-		hitTxt.y = 720 - hitTxt.height;
+		hitTxt.y = camHUD.height - hitTxt.height;
 
 		if (FlxG.keys.justPressed.ENTER && startedCountdown && canPause)
 		{
@@ -2108,9 +2108,15 @@ class PlayState extends MusicBeatState
 				case 'good':
 					daRating = 'good';
 					score = 200 * healthCoefficient;
-					addHealth += maxHealth * healthCoefficient * 0.02;
+					addHealth += maxHealth * healthCoefficient * 0.01;
 					ss = false;
 					goods++;
+				case 'cool':
+					daRating = 'cool';
+					score = 200 * healthCoefficient;
+					addHealth += maxHealth * healthCoefficient * 0.02;
+					ss = false;
+					cools++;
 				case 'sick':
 					if (health < 2)
 						addHealth += maxHealth * healthCoefficient * 0.04;
