@@ -102,8 +102,7 @@ class PlayState extends MusicBeatState
 	private var health:Float = 1;
 	private var combo:Int = 0;
 	public static var misses:Int = 0;
-	private var accuracy:Float = 0.00;
-	private var totalNotesHit:Float = 0;
+	private var totalNotesPassed:Float = 0;
 	private var totalPlayed:Int = 0;
 	private var ss:Bool = false;
 	public static var holdArray:Array<FuzzyBool> = [new FuzzyBool(), new FuzzyBool(), new FuzzyBool(), new FuzzyBool()];
@@ -249,7 +248,7 @@ class PlayState extends MusicBeatState
 		detailsPausedText = "Paused - " + detailsText;
 
 		// Updating Discord Rich Presence.
-		DiscordClient.changePresence(detailsText + " " + SONG.song + " (" + storyDifficultyText + ") " + generateRanking(), "\nAcc: " + truncateFloat(accuracy, 2) + "% | Score: " + songScore + " | Misses: " + misses  , iconRPC);
+		DiscordClient.changePresence(detailsText + " " + SONG.song + " (" + storyDifficultyText + ") " + generateRanking(), "\nAcc: " + truncateFloat(getAccuracy(), 2) + "% | Score: " + songScore + " | Misses: " + misses  , iconRPC);
 		#end
 
 
@@ -1203,7 +1202,7 @@ class PlayState extends MusicBeatState
 
 
 
-		DiscordClient.changePresence(detailsText + " " + SONG.song + " (" + storyDifficultyText + ") " + generateRanking(), "\nAcc: " + truncateFloat(accuracy, 2) + "% | Score: " + songScore + " | Misses: " + misses  , iconRPC);
+		DiscordClient.changePresence(detailsText + " " + SONG.song + " (" + storyDifficultyText + ") " + generateRanking(), "\nAcc: " + truncateFloat(getAccuracy(), 2) + "% | Score: " + songScore + " | Misses: " + misses  , iconRPC);
 		#end
 	}
 
@@ -1431,7 +1430,7 @@ class PlayState extends MusicBeatState
 			}
 
 			#if desktop
-			DiscordClient.changePresence("PAUSED on " + SONG.song + " (" + storyDifficultyText + ") " + generateRanking(), "Acc: " + truncateFloat(accuracy, 2) + "% | Score: " + songScore + " | Misses: " + misses  , iconRPC);
+			DiscordClient.changePresence("PAUSED on " + SONG.song + " (" + storyDifficultyText + ") " + generateRanking(), "Acc: " + truncateFloat(getAccuracy(), 2) + "% | Score: " + songScore + " | Misses: " + misses  , iconRPC);
 			#end
 			if (!startTimer.finished)
 				startTimer.active = false;
@@ -1456,7 +1455,7 @@ class PlayState extends MusicBeatState
 			#if desktop
 			if (startTimer.finished)
 			{
-				DiscordClient.changePresence(detailsText + " " + SONG.song + " (" + storyDifficultyText + ") " + generateRanking(), "\nAcc: " + truncateFloat(accuracy, 2) + "% | Score: " + songScore + " | Misses: " + misses, iconRPC, true, songLength - Conductor.songPosition);
+				DiscordClient.changePresence(detailsText + " " + SONG.song + " (" + storyDifficultyText + ") " + generateRanking(), "\nAcc: " + truncateFloat(getAccuracy(), 2) + "% | Score: " + songScore + " | Misses: " + misses, iconRPC, true, songLength - Conductor.songPosition);
 			}
 			else
 			{
@@ -1479,7 +1478,7 @@ class PlayState extends MusicBeatState
 		vocals.play();
 
 		#if desktop
-		DiscordClient.changePresence(detailsText + " " + SONG.song + " (" + storyDifficultyText + ") " + generateRanking(), "\nAcc: " + truncateFloat(accuracy, 2) + "% | Score: " + songScore + " | Misses: " + misses  , iconRPC);
+		DiscordClient.changePresence(detailsText + " " + SONG.song + " (" + storyDifficultyText + ") " + generateRanking(), "\nAcc: " + truncateFloat(getAccuracy(), 2) + "% | Score: " + songScore + " | Misses: " + misses  , iconRPC);
 		#end
 	}
 
@@ -1487,100 +1486,12 @@ class PlayState extends MusicBeatState
 	var startedCountdown:Bool = false;
 	var canPause:Bool = true;
 
-	function truncateFloat( number : Float, precision : Int): Float {
+	function truncateFloat( number : Float, precision : Int): Float 
+	{
 		var num = number;
 		num = num * Math.pow(10, precision);
 		num = Math.round( num ) / Math.pow(10, precision);
 		return num;
-		}
-
-
-	function generateRanking():String
-	{
-		var ranking:String = "N/A";
-
-		if (misses == 0 && bads == 0 && shits == 0 && goods == 0) // Marvelous (SICK) Full Combo
-			ranking = "(MFC)";
-		else if (misses == 0 && bads == 0 && shits == 0 && goods >= 1) // Good Full Combo (Nothing but Goods & Sicks)
-			ranking = "(GFC)";
-		else if ((shits < 10 && shits != 0 || bads < 10 && bads != 0) && misses == 0) // Single Digit Combo Breaks
-			ranking = "(SDCB)";
-		else if (misses == 0 && (shits >= 10)) // Regular FC
-			ranking = "(FC)";
-		else if (misses >= 10 || (shits >= 10)) // Combo Breaks
-			ranking = "(CB)";
-		else
-			ranking = "(Clear)";
-
-		// WIFE TIME :)))) (based on Wife3)
-
-		var wifeConditions:Array<Bool> = [
-			accuracy >= 99.9935, // AAAAA
-			accuracy >= 99.980, // AAAA:
-			accuracy >= 99.970, // AAAA.
-			accuracy >= 99.955, // AAAA
-			accuracy >= 99.90, // AAA:
-			accuracy >= 99.80, // AAA.
-			accuracy >= 99.70, // AAA
-			accuracy >= 99, // AA:
-			accuracy >= 96.50, // AA.
-			accuracy >= 93, // AA
-			accuracy >= 90, // A:
-			accuracy >= 85, // A.
-			accuracy >= 80, // A
-			accuracy >= 70, // B
-			accuracy >= 60, // C
-			accuracy < 60 // D
-		];
-
-		for(i in 0...wifeConditions.length)
-		{
-			var b = wifeConditions[i];
-			if (b)
-			{
-				switch(i)
-				{
-					case 0:
-						ranking += " AAAAA";
-					case 1:
-						ranking += " AAAA:";
-					case 2:
-						ranking += " AAAA.";
-					case 3:
-						ranking += " AAAA";
-					case 4:
-						ranking += " AAA:";
-					case 5:
-						ranking += " AAA.";
-					case 6:
-						ranking += " AAA";
-					case 7:
-						ranking += " AA:";
-					case 8:
-						ranking += " AA.";
-					case 9:
-						ranking += " AA";
-					case 10:
-						ranking += " A:";
-					case 11:
-						ranking += " A.";
-					case 12:
-						ranking += " A";
-					case 13:
-						ranking += " B";
-					case 14:
-						ranking += " C";
-					case 15:
-						ranking += " D";
-				}
-				break;
-			}
-		}
-
-		if (accuracy == 0)
-			ranking = "N/A";
-
-		return ranking;
 	}
 
 	public static var songRate = 1.5;
@@ -1619,7 +1530,7 @@ class PlayState extends MusicBeatState
 
 		if (FlxG.save.data.accuracyDisplay)
 		{
-			scoreTxt.text = "Score:" + ("" + songScore) + " | Accuracy:" + truncateFloat(accuracy, 2) + "% | " + generateRanking();
+			scoreTxt.text = "Score:" + ("" + songScore) + " | Accuracy:" + truncateFloat(getAccuracy(), 2) + "% | " + generateRanking();
 		}
 		else
 		{
@@ -1830,7 +1741,7 @@ class PlayState extends MusicBeatState
 
 			#if desktop
 			// Game Over doesn't get his own variable because it's only used here
-			DiscordClient.changePresence("GAME OVER -- " + SONG.song + " (" + storyDifficultyText + ") " + generateRanking(),"\nAcc: " + truncateFloat(accuracy, 2) + "% | Score: " + songScore + " | Misses: " + misses  , iconRPC);
+			DiscordClient.changePresence("GAME OVER -- " + SONG.song + " (" + storyDifficultyText + ") " + generateRanking(),"\nAcc: " + truncateFloat(getAccuracy(), 2) + "% | Score: " + songScore + " | Misses: " + misses  , iconRPC);
 			#end
 
 			// FlxG.switchState(new GameOverState(boyfriend.getScreenPosition().x, boyfriend.getScreenPosition().y));
@@ -2052,7 +1963,59 @@ class PlayState extends MusicBeatState
 
 		// show you your various hits until you press ENTER
 		trace('WENT BACK TO FREEPLAY??');
-		FlxG.switchState(new ShowStatState(sicks, goods, bads, shits, misses, bombs, songScore, gotHighScore, accuracy, SONG.song, CoolUtil.difficultyString(), generateRanking()));
+		FlxG.switchState(new ShowStatState(sicks, cools, goods, bads, shits, misses, bombs, songScore, gotHighScore, getAccuracy(), SONG.song, CoolUtil.difficultyString(), generateRanking()));
+	}
+
+	function getAccuracy():Float
+	{
+		if(sicks > 0 && cools == 0 && goods == 0 && bads == 0 && shits == 0 && misses == 0)
+			return 100.0;
+		var accuracy:Float = 100.0 * (sicks * 5.0 + cools * 4.0 + goods * 3.0 + bads * 2.0 + shits) / ((sicks + cools + goods + bads + shits + misses) * 5);
+		
+		return accuracy < 100.0 ? accuracy : 100.0;
+	}
+
+	function generateRanking():String
+	{
+		var rank:String = "Yikes";
+		var currentAccuracy = getAccuracy();
+		
+		if(currentAccuracy >= 50)
+			rank = "F";
+		if(currentAccuracy >= 55)
+			rank = "D-";
+		if(currentAccuracy >= 60)
+			rank = "D";
+		if(currentAccuracy >= 64)
+			rank = "D+";
+		if(currentAccuracy >= 68)
+			rank = "C-";
+		if(currentAccuracy >= 72)
+			rank = "C";
+		if(currentAccuracy >= 76)
+			rank = "C+";
+		if(currentAccuracy >= 80)
+			rank = "B-";
+		if(currentAccuracy >= 83)
+			rank = "B";
+		if(currentAccuracy >= 86)
+			rank = "B+";
+		if(currentAccuracy >= 89)
+			rank = "A-";
+		if(currentAccuracy >= 92)
+			rank = "A";
+		if(currentAccuracy >= 94)
+			rank = "A+";
+		if(currentAccuracy >= 96)
+			rank = "S-";
+		if(currentAccuracy >= 98)
+			rank = "S";
+		if(currentAccuracy >= 99)
+			rank = "S+";
+		if(currentAccuracy >= 100)
+			rank = "Perfect";
+
+		return rank;
 	}
 
 	var endingSong:Bool = false;
@@ -2065,7 +2028,6 @@ class PlayState extends MusicBeatState
 	private function popUpScore(daNote:Note):Void
 		{
 			var noteDiff:Float = Math.abs(daNote.strumTime - Conductor.songPosition);
-			var wife:Float = EtternaFunctions.wife3(noteDiff, 1.7);
 			// boyfriend.playAnim('hey');
 			vocals.volume = 1;
 	
@@ -2080,11 +2042,6 @@ class PlayState extends MusicBeatState
 	
 			var rating:FlxSprite = new FlxSprite();
 			var score:Float = 350;
-			
-			if(daNote.noteType != 1)
-				totalNotesHit += wife;
-			else
-				updateAccuracy();
 
 			var daRating = daNote.rating;
 
@@ -2113,7 +2070,7 @@ class PlayState extends MusicBeatState
 					goods++;
 				case 'cool':
 					daRating = 'cool';
-					score = 200 * healthCoefficient;
+					score = 275 * healthCoefficient;
 					addHealth += maxHealth * healthCoefficient * 0.02;
 					ss = false;
 					cools++;
@@ -2572,7 +2529,6 @@ class PlayState extends MusicBeatState
 					case 3:
 						boyfriend.playAnim('singRIGHTmiss', true);
 				}
-				updateAccuracy();
 			}
 		}
 
@@ -2653,11 +2609,9 @@ class PlayState extends MusicBeatState
 			combo = 0;
 			
 			misses++;
+			totalNotesPassed += 1;
 
 			var noteDiff:Float = Math.abs(daNote.strumTime - Conductor.songPosition);
-			var wife:Float = EtternaFunctions.wife3(noteDiff, 1.7);
-
-			totalNotesHit += wife;
 
 			songScore -= 350;
 
@@ -2676,58 +2630,8 @@ class PlayState extends MusicBeatState
 				case 3:
 					boyfriend.playAnim('singRIGHTmiss', true);
 			}
-
-			updateAccuracy();
 		}
 	}
-
-	/*function badNoteCheck()
-		{
-			// just double pasting this shit cuz fuk u
-			// REDO THIS SYSTEM!
-			var upP = controls.UP_P;
-			var rightP = controls.RIGHT_P;
-			var downP = controls.DOWN_P;
-			var leftP = controls.LEFT_P;
-	
-			if (leftP)
-				noteMiss(0);
-			if (upP)
-				noteMiss(2);
-			if (rightP)
-				noteMiss(3);
-			if (downP)
-				noteMiss(1);
-			updateAccuracy();
-		}
-	*/
-	function updateAccuracy() 
-		{
-			if (misses > 0 || accuracy < 96)
-				fc = false;
-			else
-				fc = true;
-			totalPlayed += 1;
-			accuracy = Math.max(0, totalNotesHit / totalPlayed * 100);
-		}
-
-
-	/*function getKeyPresses(note:Note):Int
-	{
-		var possibleNotes:Array<Note> = []; // copypasted but you already know that
-
-		notes.forEachAlive(function(daNote:Note)
-		{
-			if (daNote.canBeHit && daNote.mustPress && !daNote.tooLate)
-			{
-				possibleNotes.push(daNote);
-				possibleNotes.sort((a, b) -> Std.int(a.strumTime - b.strumTime));
-			}
-		});
-		if (possibleNotes.length == 1)
-			return possibleNotes.length + 1;
-		return possibleNotes.length;
-	}*/
 
 	function goodNoteHit(note:Note):Void
 	{
@@ -2740,7 +2644,7 @@ class PlayState extends MusicBeatState
 				combo += 1;
 			}
 			else
-				totalNotesHit += 1;
+				totalNotesPassed += 1;
 
 
 			switch (note.noteData)
@@ -2769,8 +2673,6 @@ class PlayState extends MusicBeatState
 			note.kill();
 			notes.remove(note, true);
 			note.destroy();
-			
-			updateAccuracy();
 		}
 	}
 		
@@ -2879,11 +2781,11 @@ class PlayState extends MusicBeatState
 
 		// yes this updates every step.
 		// yes this is bad
-		// but i'm doing it to update misses and accuracy
+		// but i'm doing it to update misses and accuraffffffffcy
 		#if desktop
 
 		// Updating Discord Rich Presence (with Time Left)
-		DiscordClient.changePresence(detailsText + " " + SONG.song + " (" + storyDifficultyText + ") " + generateRanking(), "Acc: " + truncateFloat(accuracy, 2) + "% | Score: " + songScore + " | Misses: " + misses  , iconRPC,true,  songLength - Conductor.songPosition);
+		DiscordClient.changePresence(detailsText + " " + SONG.song + " (" + storyDifficultyText + ") " + generateRanking(), "Acc: " + truncateFloat(getAccuracy(), 2) + "% | Score: " + songScore + " | Misses: " + misses  , iconRPC,true,  songLength - Conductor.songPosition);
 		#end
 
 	}
