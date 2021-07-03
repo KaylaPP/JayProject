@@ -1,3 +1,5 @@
+![JK Engine](JKEngineWitBackground.png)
+
 This mod is a collection of songs chosen and charted by Jay, with some changes to the input system I added to make the game's input system closer to that of OpenITG.
 
 ## Song Names
@@ -34,7 +36,7 @@ This is a **MOD**. This is not Vanilla and should be treated as a **MODIFICATION
 - [ninjamuffin99](https://twitter.com/ninja_muffin99) - Programmer
 - [PhantomArcade3K](https://twitter.com/phantomarcade3k) and [Evilsk8r](https://twitter.com/evilsk8r) - Art
 - [Kawaisprite](https://twitter.com/kawaisprite) - Musician
-- [Kade M](https://github.com/KadeDev) - Creator of the Kade Engine
+- [Kade M](https://github.com/KadeDev) - Creator of the Kade Engine, what JK Engine is based on
 - [Jaymes "Jay" Hayward](https://www.youtube.com/c/JAiZYouTube/videos) - Charter
 - [kEvin](https://kevinp.carrd.co) - Main Programmer for this Mod
 - [Toumi](https://soundcloud.com/toumitunes) - Creator of the boom sound effect (also a really cool guy)
@@ -87,7 +89,7 @@ You should have everything ready for compiling the game! Follow the guide below 
 At the moment, you can optionally fix the transition bug in songs with zoomed out cameras.
 - Run `haxelib git flixel-addons https://github.com/HaxeFlixel/flixel-addons` in the terminal/command-prompt.
 
-**As of Kade Engine version 1.3**, you also need Discord RPC to compile the game, get it by using the following command:
+You also need Discord RPC to compile the game, get it by using the following command:
 - Use `haxelib git discord_rpc https://github.com/Aidan63/linc_discord-rpc` in the terminal/command-prompt.
 
 ### Ignored files
