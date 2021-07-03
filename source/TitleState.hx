@@ -38,6 +38,8 @@ class TitleState extends MusicBeatState
 	var blackScreen:FlxSprite;
 	var credGroup:FlxGroup;
 	var credTextShit:Alphabet;
+	var jkEngineGroup:Array<FlxSprite>;
+	var jkEngineIndex:Int;
 	var textGroup:FlxGroup;
 	var ngSpr:FlxSprite;
 
@@ -335,7 +337,7 @@ class TitleState extends MusicBeatState
 	{
 		super.beatHit();
 
-		logoBl.animation.play('bump');
+		logoBl.animation.play('bump', true);
 		danceLeft = !danceLeft;
 
 		if (danceLeft)
@@ -344,6 +346,18 @@ class TitleState extends MusicBeatState
 			gfDance.animation.play('danceLeft');
 
 		FlxG.log.add(curBeat);
+
+		if(skippedIntro)
+		{
+			for(jks in jkEngineGroup)
+			{
+				jks.visible = false;
+			}
+			jkEngineIndex++;
+			if(jkEngineIndex >= 4)
+				jkEngineIndex = 0;
+			jkEngineGroup[jkEngineIndex].visible = true;
+		}
 
 		switch (curBeat)
 		{
@@ -364,7 +378,6 @@ class TitleState extends MusicBeatState
 			case 7:
 				addMoreText('Jay and kEvin');
 			case 8:
-				addMoreText('based on the Kade Engine');
 			// credTextShit.text += '\nNewgrounds';
 			case 9:
 				deleteCoolText();
@@ -404,6 +417,17 @@ class TitleState extends MusicBeatState
 		if (!skippedIntro)
 		{
 			remove(ngSpr);
+
+			jkEngineGroup = new Array<FlxSprite>();
+			jkEngineIndex = 0;
+			for(i in 1...5)
+			{
+				var jkfile:String = "jkengine" + i;
+				var newsprite:FlxSprite = new FlxSprite(44, 410).loadGraphic(Paths.image(jkfile));
+				newsprite.visible = false;
+				add(newsprite);
+				jkEngineGroup.push(newsprite);
+			}
 
 			FlxG.camera.flash(FlxColor.WHITE, 4);
 			remove(credGroup);
