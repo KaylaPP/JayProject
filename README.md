@@ -49,6 +49,7 @@ This is a **MOD**. This is not Vanilla and should be treated as a **MODIFICATION
 - [0th](https://reddit.com/u/mest0shai) - Artist/Animator/Playtester
 - Fia - Artist/Animator
 - [ChazbillYT](https://www.youtube.com/channel/UC8SJ69agmZMWOQfLpxD7omQ) - Artist
+- [Gema Police](https://twitter.com/gemapolice?lang=en) - Artist
 - [Davie Paige](https://www.instagram.com/daviepaige/) - The guy I collaborated with to make "From Nothing"
 - Spook - Playtester
 - Dreaming - Playtester

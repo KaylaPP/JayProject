@@ -1,6 +1,6 @@
 import flixel.FlxG;
 
-class KadeEngineData
+class JKEngineData
 {
     public static function initSave()
     {
