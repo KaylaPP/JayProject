@@ -2,6 +2,10 @@
 
 This mod is a collection of songs chosen and charted by Jay, with some changes to the input system I added to make the game's input system closer to that of OpenITG.
 
+Join us on my Discord server where we talk about JK Engine, FNF, or really anything in general!
+
+https://discord.gg/3zJ5SwZBes
+
 ## Song Names
 ```
 - 16 Night is a Long Time					IRON ATTACK!			n/a
