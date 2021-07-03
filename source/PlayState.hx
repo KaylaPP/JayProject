@@ -1970,7 +1970,7 @@ class PlayState extends MusicBeatState
 	{
 		if(sicks > 0 && cools == 0 && goods == 0 && bads == 0 && shits == 0 && misses == 0)
 			return 100.0;
-		var accuracy:Float = 100.0 * (sicks * 5.0 + cools * 4.0 + goods * 3.0 + bads * 2.0 + shits) / ((sicks + cools + goods + bads + shits + misses) * 5);
+		var accuracy:Float = 100.0 * (sicks * 5.0 + cools * 4.0 + goods * 3.0 + bads * 2.0 + shits) / ((sicks + cools + goods + bads + shits + misses + bombs) * 5);
 		
 		return accuracy < 100.0 ? accuracy : 100.0;
 	}
@@ -2070,7 +2070,7 @@ class PlayState extends MusicBeatState
 					goods++;
 				case 'cool':
 					daRating = 'cool';
-					score = 275 * healthCoefficient;
+					score = 300 * healthCoefficient;
 					addHealth += maxHealth * healthCoefficient * 0.02;
 					ss = false;
 					cools++;
