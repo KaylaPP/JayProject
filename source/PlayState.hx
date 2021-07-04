@@ -2843,16 +2843,6 @@ class PlayState extends MusicBeatState
 			boyfriend.playAnim('idle');
 		}
 
-		/*if (curBeat % 8 == 7 && curSong == 'Bopeebo')
-		{
-			boyfriend.playAnim('hey', true);
-
-			if ((SONG.song == 'Armageddon' || SONG.song == 'The-Big-Black' || SONG.song == 'Printer-Jam') && dad.curCharacter == 'gf')
-			{
-				dad.playAnim('cheer', true);
-			}
-		}*/
-
 		switch (curStage)
 		{
 			case 'school':

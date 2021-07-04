@@ -23,7 +23,7 @@ class Conductor
 	public static var lastSongPos:Float;
 	public static var offset:Float = 0;
 
-	public static var safeZoneOffset:Float = 150; // is calculated in create(), is safeFrames in milliseconds
+	public static var safeZoneOffset:Float = 200; // is calculated in create(), is safeFrames in milliseconds
 
 	public static var bpmChangeMap:Array<BPMChangeEvent> = [];
 

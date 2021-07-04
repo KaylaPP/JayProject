@@ -260,21 +260,21 @@ class Note extends FlxSprite
 				switch(noteType)
 				{
 				case 0:
-					if(noteDiff > Conductor.safeZoneOffset * 0.7)
+					if(noteDiff > 105)
 						rating = "shit";
-					else if(noteDiff < Conductor.safeZoneOffset * -0.7)
+					else if(noteDiff < -105)
 						rating = "shit";
-					else if(noteDiff > Conductor.safeZoneOffset * (1.6 / 3.0))
+					else if(noteDiff > 80)
 						rating = "bad";
-					else if(noteDiff < Conductor.safeZoneOffset * (-1.6 / 3.0))
+					else if(noteDiff < -80)
 						rating = "bad";
-					else if(noteDiff > Conductor.safeZoneOffset * (1.1 / 3.0))
+					else if(noteDiff > 55)
 						rating = "good";
-					else if(noteDiff < Conductor.safeZoneOffset * (-1.1 / 3.0))
+					else if(noteDiff < -55)
 						rating = "good";
-					else if(noteDiff > Conductor.safeZoneOffset * 0.2)
+					else if(noteDiff > 30)
 						rating = "cool";
-					else if(noteDiff < Conductor.safeZoneOffset * -0.2)
+					else if(noteDiff < -30)
 						rating = "cool";
 					else
 						rating = "sick";
