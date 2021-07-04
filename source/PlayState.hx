@@ -1858,7 +1858,7 @@ class PlayState extends MusicBeatState
 			if(printerAssetsNotLoaded)
 			{
 				trace('loading printer assets');
-				camPrinter = new FlxCamera(0, 0, 1280, 720, 1);
+				camPrinter = new FlxCamera();
 				camPrinter.bgColor.alpha = 0;
 
 				camError = new FlxCamera();
