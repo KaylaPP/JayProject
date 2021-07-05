@@ -317,6 +317,21 @@ class FreeplayState extends MusicBeatState
 				// item.setGraphicSize(Std.int(item.width));
 			}
 		}
+
+		if(songs[curSelected].songName.toLowerCase() == "galaxy-collapse")
+		{
+			if (curDifficulty < 2)
+				curDifficulty = 2;
+			if (curDifficulty > 5)
+				curDifficulty = 5;
+		}
+		else 
+		{
+			if (curDifficulty < 0)
+				curDifficulty = 0;
+			if (curDifficulty > 2)
+				curDifficulty = 2;
+		}
 	}
 }
 
