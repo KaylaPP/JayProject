@@ -102,7 +102,6 @@ class PlayState extends MusicBeatState
 	private var health:Float = 1;
 	private var combo:Int = 0;
 	public static var misses:Int = 0;
-	private var totalNotesPassed:Float = 0;
 	private var totalPlayed:Int = 0;
 	private var ss:Bool = false;
 	public static var holdArray:Array<FuzzyBool> = [new FuzzyBool(), new FuzzyBool(), new FuzzyBool(), new FuzzyBool()];
@@ -2612,7 +2611,6 @@ class PlayState extends MusicBeatState
 			combo = 0;
 			
 			misses++;
-			totalNotesPassed += 1;
 
 			var noteDiff:Float = Math.abs(daNote.strumTime - Conductor.songPosition);
 
@@ -2646,8 +2644,6 @@ class PlayState extends MusicBeatState
 				popUpScore(note);
 				combo += 1;
 			}
-			else
-				totalNotesPassed += 1;
 
 
 			switch (note.noteData)
