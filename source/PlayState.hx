@@ -2780,7 +2780,7 @@ class PlayState extends MusicBeatState
 
 		// yes this updates every step.
 		// yes this is bad
-		// but i'm doing it to update misses and accuraffffffffcy
+		// but i'm doing it to update misses and accuracy
 		#if desktop
 
 		// Updating Discord Rich Presence (with Time Left)
