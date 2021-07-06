@@ -1537,7 +1537,7 @@ class PlayState extends MusicBeatState
 			scoreTxt.text = "Score:" + songScore;
 		}
 
-		hitTxt.text = "Sicks:  " + sicks + "\nCools:  " + cools + "\nGoods:  " + goods + "\nBads:   " + bads + "\nShits:  " + shits + "\nMisses: " + misses + "\nBombs:  " + bombs;
+		hitTxt.text = "Sicks:  " + sicks + "\nCools:  " + cools + "\nGoods:  " + goods + "\nBads:   " + bads + "\nShits:  " + shits + "\nMisses: " + misses + "\nBombs:  " + bombs + "\n";
 		hitTxt.updateHitbox();
 		hitTxt.y = camHUD.height - hitTxt.height;
 
