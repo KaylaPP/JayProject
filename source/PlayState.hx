@@ -1484,7 +1484,7 @@ class PlayState extends MusicBeatState
 
 	private var paused:Bool = false;
 	var startedCountdown:Bool = false;
-	var canPause:Bool = true;
+	var canPause:Bool = false;
 
 	function truncateFloat( number : Float, precision : Int): Float 
 	{
@@ -1606,7 +1606,10 @@ class PlayState extends MusicBeatState
 			{
 				Conductor.songPosition += FlxG.elapsed * 1000;
 				if (Conductor.songPosition >= 0)
+				{
+					canPause = true;
 					startSong();
+				}
 			}
 		}
 		else
