@@ -2493,7 +2493,7 @@ class PlayState extends MusicBeatState
 					{
 						if(note.isFinalSustain)
 						{
-							songScore += 100;
+							songScore += 175;
 							health += maxHealth * 0.025;
 						}
 						anyGoodHits = true;
