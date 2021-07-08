@@ -1267,7 +1267,7 @@ class PlayState extends MusicBeatState
 				var susLength:Float = swagNote.sustainLength;
 
 				susLength = susLength / Conductor.stepCrochet;
-				if(susLength <= 0.5)
+				if(susLength <= 0.5 && susLength > 0.0)
 					susLength = 1.0;
 				unspawnNotes.push(swagNote);
 
