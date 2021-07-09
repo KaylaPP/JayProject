@@ -1530,6 +1530,13 @@ class PlayState extends MusicBeatState
 
 		super.update(elapsed);
 
+		#if debug
+		if(FlxG.keys.pressed.CONTROL)
+			SONG.speed -= 0.1 * elapsed;
+		if(FlxG.keys.pressed.ALT)
+			SONG.speed += 0.1 * elapsed;
+		#end
+		
 		if (FlxG.save.data.accuracyDisplay)
 		{
 			scoreTxt.text = "Score:" + ("" + songScore) + " | Accuracy:" + truncateFloat(getAccuracy(), 2) + "% | " + generateRanking();
