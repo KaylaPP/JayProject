@@ -1769,7 +1769,7 @@ class PlayState extends MusicBeatState
 
 		if (unspawnNotes[0] != null)
 		{
-			if (unspawnNotes[0].strumTime - Conductor.songPosition < 1500)
+			if((unspawnNotes[0].y < FlxG.height && !FlxG.save.data.downscroll) || (unspawnNotes[0].y > FlxG.height && FlxG.save.data.downscroll))
 			{
 				var dunceNote:Note = unspawnNotes[0];
 				notes.add(dunceNote);
