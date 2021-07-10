@@ -1235,6 +1235,13 @@ class PlayState extends MusicBeatState
 		var playerCounter:Int = 0;
 
 		var daBeats:Int = 0; // Not exactly representative of 'daBeats' lol, just how much it has looped
+		var maxbpm:Float = 0.0;
+		for(section in noteData)
+		{
+			if(section.bpm > maxbpm)
+				maxbpm = section.bpm;
+		}
+
 		for (section in noteData)
 		{
 			var coolSection:Int = Std.int(section.lengthInSteps / 4);
@@ -1266,7 +1273,8 @@ class PlayState extends MusicBeatState
 
 				var susLength:Float = swagNote.sustainLength;
 
-				susLength = susLength / Conductor.stepCrochet;
+				var maxStepCrochet:Float = ((60 / maxbpm) * 1000) / 4;
+				susLength = susLength / maxStepCrochet;
 				if(susLength <= 0.5 && susLength > 0.0)
 					susLength = 1.0;
 				unspawnNotes.push(swagNote);
@@ -1275,7 +1283,7 @@ class PlayState extends MusicBeatState
 				{
 					oldNote = unspawnNotes[Std.int(unspawnNotes.length - 1)];
 
-					var sustainNote:Note = new Note(daStrumTime + (Conductor.stepCrochet * susNote) + Conductor.stepCrochet, daNoteData, oldNote, true, FlxG.save.data.centerArrows ? -223 : 50);
+					var sustainNote:Note = new Note(daStrumTime + (maxStepCrochet * susNote) + maxStepCrochet, daNoteData, oldNote, true, FlxG.save.data.centerArrows ? -223 : 50);
 					sustainNote.scrollFactor.set();
 					unspawnNotes.push(sustainNote);
 

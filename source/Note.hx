@@ -163,7 +163,7 @@ class Note extends FlxSprite
 		{
 			posOrNeg = prevNote.posOrNeg;
 			noteScore * 0.2;
-			alpha = 0.6;
+			alpha = 1.0;
 
 			x += width / 2;
 
@@ -252,7 +252,7 @@ class Note extends FlxSprite
 
 			if(isSustainNote && getRootNote().wasGoodHit)
 			{
-				alpha = 0.6 - 0.5 * Math.abs(1.0 - PlayState.holdArray[noteData].getNormalizedfBool());
+				alpha = 1.0 - 0.9 * Math.abs(1.0 - PlayState.holdArray[noteData].getNormalizedfBool());
 			}
 
 			if(canBeHit)
