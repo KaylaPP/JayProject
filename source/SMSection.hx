@@ -3,4 +3,9 @@ package;
 class SMSection 
 {
     public var notes:Array<SMNote>;
+
+    public function new()
+    {
+        
+    }
 }
