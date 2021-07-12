@@ -19,8 +19,24 @@ class DebugState extends MusicBeatState
 
 	override public function create():Void
 	{
+		song = new SMSong("from-nothing");
+		song.parseSM();
+
+		song = new SMSong("grass-skirt-crowdkill");
+		song.parseSM();
+
 		song = new SMSong("metronome");
 		song.parseSM();
+
+		song = new SMSong("omae-wa-mou-tiny-little-adiantum-remix");
+		song.parseSM();
+
+		song = new SMSong("smooth-criminal-pal-version");
+		song.parseSM();
+
+		song = new SMSong("the-disappearance-of-hatsune-miku");
+		song.parseSM();
+
 		super.create();
 	}
 

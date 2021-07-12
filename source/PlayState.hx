@@ -1496,7 +1496,7 @@ class PlayState extends MusicBeatState
 	var startedCountdown:Bool = false;
 	var canPause:Bool = false;
 
-	function truncateFloat( number : Float, precision : Int): Float 
+	public static function truncateFloat( number : Float, precision : Int): Float 
 	{
 		var num = number;
 		num = num * Math.pow(10, precision);
