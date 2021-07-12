@@ -1,4 +1,3 @@
-//ShowStatState
 package;
 
 import sys.io.File;
@@ -53,6 +52,13 @@ class DebugState extends MusicBeatState
 		super.update(elapsed);
 	}
 
+	function getDifficulties(sm:String):Array<String>
+	{
+		var difficulties:Array<String>;
+
+		return difficulties;
+	}
+
 	function truncateFloat( number : Float, precision : Int): Float 
 	{
 		var num = number;
@@ -60,5 +66,4 @@ class DebugState extends MusicBeatState
 		num = Math.round( num ) / Math.pow(10, precision);
 		return num;
 	}
-
 }
