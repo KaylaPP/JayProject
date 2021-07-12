@@ -43,18 +43,38 @@ class DebugState extends MusicBeatState
 
 	override public function create():Void
 	{
-        var SMContent = File.getContent("assets/stepmania/grass-skirt-crowdkill/grass-skirt-crowdkill.sm");
+		var song:String = "grass-skirt-crowdkill";
+        var SMString = File.getContent("assets/stepmania/" + song + "/" + song +  ".sm");
+		var SMContent:Array<String> = new Array<String>();
+
+		var tempstr:String = "";
+		for(i in 0...SMString.length)
+		{
+			if(SMString.charAt(i) != '\n')
+			{
+				tempstr += SMString.charAt(i);
+			}
+			else
+			{
+				SMContent.push(tempstr);
+				tempstr = "";
+			}
+		}
+
 		super.create();
 	}
 
 	override function update(elapsed:Float)
 	{
+		if(FlxG.keys.justPressed.ESCAPE)
+			FlxG.switchState(new TitleState());
+
 		super.update(elapsed);
 	}
 
 	function getDifficulties(sm:String):Array<String>
 	{
-		var difficulties:Array<String>;
+		var difficulties:Array<String> = new Array<String>();
 
 		return difficulties;
 	}

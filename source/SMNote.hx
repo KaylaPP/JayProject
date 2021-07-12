@@ -7,24 +7,6 @@ typedef NoteLocation =
     var section:Int;
 }
 
-typedef SMMetadata =
-{
-    var TITLE:String;
-    var SUBTITLE:String;
-    var ARTIST:String;
-    var TITLETRANSLIT:String;
-    var SUBTITLETRANSLIT:String;
-    var ARTISTTRANSLIT:String;
-    var GENRE:String;
-    var CREDIT:String;
-    var OFFSET:Float;
-    var SAMPLESTART:Float;
-    var SAMPLELENGTH:Float;
-    var SELECTABLE:Bool;
-    var BPMS:Array<Float>;
-    var STOPS:Int; // change this data type
-}
-
 class SMNote extends FlxSprite
 {
     public var direction:Int;
