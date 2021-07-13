@@ -20,7 +20,7 @@ typedef SMMetadata =
 
 class SMSong
 {
-    public var sections:Array<SMSection>;
+    public var notes:Array<SMNote>;
     public var metadata:SMMetadata;
     public var songFileName:String;
     public var difficulty:String;
@@ -109,7 +109,31 @@ class SMSong
         }
 
         // Turn chart into notes on a screen (very exciting)
-        trace(CHART);
+        var tempstr:String = "";
+        var section:Int = 0;
+        for(i in 0...CHART.length)
+        {
+            if(CHART.charAt(i) != ',' && possibleNotes.indexOf(CHART.charAt(i)) != -1)
+            {
+                if(CHART.charAt(i) != '4')
+                    tempstr += CHART.charAt(i);
+                else
+                    tempstr += '2';
+            }
+            else if(CHART.charAt(i) == ',')
+            {
+                var denominator:Int = tempstr.length;
+                for(j in 0...tempstr.length)
+                {
+                    for(k in 0...tempstr.length)
+                    {
+                        // do stuff
+                    }
+                }
+                tempstr = "";
+                tempstr += 1;
+            }
+        }
     }
 
     private function getFeature(SMString:String, feature:String):String
