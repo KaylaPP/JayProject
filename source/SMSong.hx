@@ -122,18 +122,17 @@ class SMSong
             }
             else if(CHART.charAt(i) == ',')
             {
-                var denominator:Int = tempstr.length;
+                var denominator:Int = Math.floor(tempstr.length / 4);
                 for(j in 0...tempstr.length)
                 {
-                    for(k in 0...tempstr.length)
-                    {
-                        // do stuff
-                    }
+                    notes.push(new SMNote(j % 4, Math.floor(j / 4), denominator, section, tempstr.charAt(j)));
                 }
                 tempstr = "";
-                tempstr += 1;
+                section += 1;
             }
         }
+
+        // create elapsed time for notes (very difficult)
     }
 
     private function getFeature(SMString:String, feature:String):String

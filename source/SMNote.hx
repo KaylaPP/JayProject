@@ -1,34 +1,39 @@
 import flixel.FlxSprite;
 
-typedef NoteLocation = 
-{
-    var numerator:Int;
-    var denominator:Int;
-    var section:Int;
-}
-
 class SMNote extends FlxSprite
 {
     public var direction:Int;
-    public var location:NoteLocation;
-    public var sustainEnd:NoteLocation;
-    public var noteType:Int;
+    public var numerator:Int;
+    public var denominator:Int;
+    public var section:Int;
+    public var strumTime:Float;
+    public var noteType:String;
     public var hasSustain:Bool = false;
+    public var sustainEnd:SMNote;
 
-    public function new(direction:Int, location:NoteLocation, ?sustainEnd:NoteLocation = {numerator:0, denominator:0, section:0}, ?noteType:Int = 0)
+    public function new(direction:Int, numerator:Int, denominator:Int, section:Int, noteType:String)
     {
         super();
 
         this.direction = direction;
-        this.location = location;
-        this.sustainEnd = sustainEnd;
-        if(sustainEnd.denominator > 0)
-            hasSustain = true;
+        this.numerator = numerator;
+        this.denominator = denominator;
+        this.section = section;
         this.noteType = noteType;
     }
 
     override function update(elapsed:Float)
     {
         super.update(elapsed);
+    }
+
+    public function addSustain(sustainEnd:SMNote)
+    {
+        this.sustainEnd = sustainEnd;
+    }
+
+    public function setStrumTime(strumTime:Float)
+    {
+        this.strumTime = strumTime;
     }
 }
