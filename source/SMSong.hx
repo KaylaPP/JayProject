@@ -23,13 +23,23 @@ class SMSong
     public var sections:Array<SMSection>;
     public var metadata:SMMetadata;
     public var songFileName:String;
+    public var difficulty:String;
+    public static var possibleDifficulties:Array<String>;
 
     public function new(songFileName:String)
     {
         this.songFileName = songFileName;
+
+        possibleDifficulties = new Array<String>();
+        possibleDifficulties.push("Edit");      // Edit (can be any difficulty)
+        possibleDifficulties.push("Challenge"); // Expert
+        possibleDifficulties.push("Hard");      // Hard
+        possibleDifficulties.push("Medium");    // Medium
+        possibleDifficulties.push("Easy");      // Easy
+        possibleDifficulties.push("Beginner");  // Novice
     }
 
-    public function parseSM():Void
+    public function parseSM(difficulty:String):Void
     {
         var SMString = File.getContent("assets/stepmania/" + songFileName + "/" + songFileName +  ".sm");
 
@@ -51,7 +61,34 @@ class SMSong
             STOPS:getSMBeats(getFeature(SMString, "STOPS"))
         };
 
+        loadDifficulty(SMString, difficulty);
+
         trace(metadata);
+    }
+
+    private function loadDifficulty(SMString:String, difficulty:String):Void
+    {
+        var NOTES:String = "";
+        if(SMString.indexOf(difficulty) == -1)
+        {
+            // load first available difficulty
+            NOTES = getFeature(SMString, "NOTES");
+            for(dif in possibleDifficulties)
+            {
+                if(NOTES.indexOf(dif) != -1)
+                {
+                    this.difficulty = dif;
+                    break;
+                }
+            }
+            trace("\n"+NOTES);
+        }
+        else
+        {
+            NOTES = SMString.substr(0, SMString.indexOf(difficulty));
+            NOTES = getFeature(SMString.substr(NOTES.lastIndexOf("#NOTES")), "NOTES");
+            trace("\n"+NOTES);
+        }
     }
 
     private function getFeature(SMString:String, feature:String):String
