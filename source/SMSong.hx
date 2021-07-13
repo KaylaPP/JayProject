@@ -25,6 +25,7 @@ class SMSong
     public var songFileName:String;
     public var difficulty:String;
     public static var possibleDifficulties:Array<String>;
+    public static var possibleNotes:String = "01234M";
 
     public function new(songFileName:String)
     {
@@ -42,6 +43,7 @@ class SMSong
     public function parseSM(difficulty:String):Void
     {
         var SMString = File.getContent("assets/stepmania/" + songFileName + "/" + songFileName +  ".sm");
+        SMString = strReplace(SMString, "\r\n", "\n");
 
         var debugstr:String = "\n";
 
@@ -69,7 +71,7 @@ class SMSong
     private function loadDifficulty(SMString:String, difficulty:String):Void
     {
         var NOTES:String = "";
-        if(SMString.indexOf(difficulty) == -1)
+        if(possibleDifficulties.indexOf(difficulty) == -1 || SMString.indexOf(difficulty) == -1)
         {
             // load first available difficulty
             NOTES = getFeature(SMString, "NOTES");
@@ -88,6 +90,20 @@ class SMSong
             NOTES = SMString.substr(0, SMString.indexOf(difficulty));
             NOTES = getFeature(SMString.substr(NOTES.lastIndexOf("#NOTES")), "NOTES");
             trace("\n"+NOTES);
+        }
+
+        // skip over random attributes and go straight into the chart
+        var colonCount:Int = 0;
+        for(i in 0...NOTES.length)
+        {
+            if(colonCount >= 5)
+            {
+                
+            }
+            if(NOTES.charAt(i) == ":")
+            {
+                colonCount += 1;
+            }
         }
     }
 
@@ -189,5 +205,14 @@ class SMSong
         num = num * Math.pow(10, precision);
         num = Math.floor( num ) / Math.pow(10, precision);
         return num;
+    }
+
+    public static function strReplace(str:String, pattern:String, newpattern:String):String
+    {
+        while(str.indexOf(pattern) != -1)
+        {
+            str = str.substr(0, str.indexOf(pattern)) + newpattern + str.substr(str.indexOf(pattern) + pattern.length);
+        }
+        return str;
     }
 }
