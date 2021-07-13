@@ -94,17 +94,22 @@ class SMSong
 
         // skip over random attributes and go straight into the chart
         var colonCount:Int = 0;
+        var CHART:String = "";
         for(i in 0...NOTES.length)
         {
             if(colonCount >= 5)
             {
-                
+                CHART = NOTES.substr(i);
+                break;
             }
             if(NOTES.charAt(i) == ":")
             {
                 colonCount += 1;
             }
         }
+
+        // Turn chart into notes on a screen (very exciting)
+        trace(CHART);
     }
 
     private function getFeature(SMString:String, feature:String):String
