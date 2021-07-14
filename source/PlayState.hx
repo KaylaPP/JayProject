@@ -1,5 +1,7 @@
 package;
 
+import openfl.filters.BitmapFilterShader;
+import openfl.filters.BitmapFilter;
 import Section.SwagSection;
 import Song.SwagSong;
 import WiggleEffect.WiggleEffectType;
@@ -161,6 +163,8 @@ class PlayState extends MusicBeatState
 	public static var noteSillyTime:Bool = false;
 	public static var noteGoInsane:Bool = false;
 	private var downscroll:Bool;
+
+	public static var noteSillyShader:NoteSillyShader = new NoteSillyShader();
 
 	var hitTxt:FlxText;
 	
@@ -1769,7 +1773,7 @@ class PlayState extends MusicBeatState
 
 		if (unspawnNotes[0] != null)
 		{
-			if((unspawnNotes[0].y < FlxG.height && !FlxG.save.data.downscroll) || (unspawnNotes[0].y > FlxG.height && FlxG.save.data.downscroll))
+			if(unspawnNotes[0].y < FlxG.height)
 			{
 				var dunceNote:Note = unspawnNotes[0];
 				notes.add(dunceNote);
@@ -1902,6 +1906,10 @@ class PlayState extends MusicBeatState
 				add(printerCode.sprite);
 				add(printerError.sprite);
 
+				noteSillyShader = new NoteSillyShader();
+
+				camNote.setFilters([ new ShaderFilter(noteSillyShader) ]);
+
 				printerAssetsNotLoaded = false;
 			}
 			else
@@ -1929,6 +1937,8 @@ class PlayState extends MusicBeatState
 				{
 					noteSillyTime = false;
 				}
+
+				noteSillyShader.update(elapsed, noteSillyTime);
 
 				horizontalNoteMover.update(elapsed);
 				camNote.x = horizontalNoteMover.x;

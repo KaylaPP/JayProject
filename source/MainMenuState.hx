@@ -36,7 +36,7 @@ class MainMenuState extends MusicBeatState
 	var newGaming2:FlxText;
 	var newInput:Bool = true;
 
-	public static var gameVer:String = "JayPack Version 0.7.1";
+	public static var gameVer:String = "JayPack Version 0.8 BETA";
 
 	var magenta:FlxSprite;
 	var camFollow:FlxObject;

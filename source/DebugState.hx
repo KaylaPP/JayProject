@@ -20,7 +20,8 @@ class DebugState extends MusicBeatState
 	override public function create():Void
 	{
 		song = new SMSong("grass-skirt-crowdkill");
-		song.parseSM("Hard");
+		song.parseSM();
+		song.loadDifficulty("Hard");
 
 		super.create();
 	}

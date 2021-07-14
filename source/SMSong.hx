@@ -20,6 +20,7 @@ typedef SMMetadata =
 
 class SMSong
 {
+    private var SMString:String;
     public var notes:Array<SMNote>;
     public var metadata:SMMetadata;
     public var songFileName:String;
@@ -31,6 +32,8 @@ class SMSong
     {
         this.songFileName = songFileName;
 
+        notes = new Array<SMNote>();
+
         possibleDifficulties = new Array<String>();
         possibleDifficulties.push("Edit");      // Edit (can be any difficulty)
         possibleDifficulties.push("Challenge"); // Expert
@@ -40,9 +43,9 @@ class SMSong
         possibleDifficulties.push("Beginner");  // Novice
     }
 
-    public function parseSM(difficulty:String):Void
+    public function parseSM():Void
     {
-        var SMString = File.getContent("assets/stepmania/" + songFileName + "/" + songFileName +  ".sm");
+        SMString = File.getContent("assets/stepmania/" + songFileName + "/" + songFileName +  ".sm");
         SMString = strReplace(SMString, "\r\n", "\n");
 
         var debugstr:String = "\n";
@@ -63,12 +66,12 @@ class SMSong
             STOPS:getSMBeats(getFeature(SMString, "STOPS"))
         };
 
-        loadDifficulty(SMString, difficulty);
+        loadDifficulty(difficulty);
 
         trace(metadata);
     }
 
-    private function loadDifficulty(SMString:String, difficulty:String):Void
+    public function loadDifficulty(difficulty:String):Void
     {
         var NOTES:String = "";
         if(possibleDifficulties.indexOf(difficulty) == -1 || SMString.indexOf(difficulty) == -1)
@@ -125,14 +128,31 @@ class SMSong
                 var denominator:Int = Math.floor(tempstr.length / 4);
                 for(j in 0...tempstr.length)
                 {
-                    notes.push(new SMNote(j % 4, Math.floor(j / 4), denominator, section, tempstr.charAt(j)));
+                    if(tempstr.charAt(j) != '0')
+                    {
+                        notes.push(new SMNote(this, j % 4, Math.floor(j / 4), denominator, section, tempstr.charAt(j)));
+                    }
                 }
                 tempstr = "";
                 section += 1;
             }
         }
+        if(tempstr != "")
+        {
+            var denominator:Int = Math.floor(tempstr.length / 4);
+            for(j in 0...tempstr.length)
+            {
+                if(tempstr.charAt(j) != '0')
+                {
+                    notes.push(new SMNote(this, j % 4, Math.floor(j / 4), denominator, section, tempstr.charAt(j)));
+                }
+            }
+            tempstr = "";
+        }
 
         // create elapsed time for notes (very difficult)
+        // 120 bpm -> 1/120 mpb -> 1/2 spb -> 500 mspb
+        // bpm -> 1/bpm -> 60/bpm -> 60*1000/bpm = mspb
     }
 
     private function getFeature(SMString:String, feature:String):String

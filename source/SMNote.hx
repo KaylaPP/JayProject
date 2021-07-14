@@ -11,10 +11,13 @@ class SMNote extends FlxSprite
     public var hasSustain:Bool = false;
     public var sustainEnd:SMNote;
 
-    public function new(direction:Int, numerator:Int, denominator:Int, section:Int, noteType:String)
+    private var currentSong:SMSong;
+
+    public function new(currentSong:SMSong, direction:Int, numerator:Int, denominator:Int, section:Int, noteType:String)
     {
         super();
 
+        this.currentSong = currentSong;
         this.direction = direction;
         this.numerator = numerator;
         this.denominator = denominator;
@@ -27,12 +30,17 @@ class SMNote extends FlxSprite
         super.update(elapsed);
     }
 
-    public function addSustain(sustainEnd:SMNote)
+    public function addSustain(sustainEnd:SMNote):Void
     {
         this.sustainEnd = sustainEnd;
     }
 
-    public function setStrumTime(strumTime:Float)
+    public function setScreenPosition(startX:Int, centerScroll:Bool, scrollSpeedMultiplier:Int, ?isEnemyNote:Bool = false):Void
+    {
+        //
+    }
+
+    public function setStrumTime(strumTime:Float):Void
     {
         this.strumTime = strumTime;
     }
