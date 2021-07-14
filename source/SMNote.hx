@@ -35,7 +35,7 @@ class SMNote extends FlxSprite
         this.sustainEnd = sustainEnd;
     }
 
-    public function setScreenPosition(startX:Int, centerScroll:Bool, scrollSpeedMultiplier:Int, ?isEnemyNote:Bool = false):Void
+    public function setScreenPosition(startX:Float, centerScroll:Bool, scrollSpeedMultiplier:Int, ?isEnemyNote:Bool = false):Void
     {
         //
     }
