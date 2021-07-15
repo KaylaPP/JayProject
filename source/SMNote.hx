@@ -1,4 +1,6 @@
+import flixel.FlxG;
 import flixel.FlxSprite;
+import flixel.system.FlxSound;
 
 class SMNote extends FlxSprite
 {
@@ -69,7 +71,15 @@ class SMNote extends FlxSprite
     {
         super.update(elapsed);
 
-        //y -= currentSong.metadata.BPMS[0].VAL * 2.0 * elapsed;
+        y -= currentSong.metadata.BPMS[0].VAL * currentSong.velocityCoefficient * elapsed;
+        if(y < 0)
+        {
+            if(visible)
+            {
+                FlxG.sound.play(Paths.sound('boom', 'shared'));
+            }
+            visible = false;
+        }
     }
 
     public function addSustain(sustainEnd:SMNote):Void
@@ -80,15 +90,5 @@ class SMNote extends FlxSprite
     public function getBeat():Float
     {
         return (this.section + (this.numerator / this.denominator));
-    }
-
-    public function setScreenPosition(startX:Float, centerScroll:Bool, scrollSpeedMultiplier:Int, ?isEnemyNote:Bool = false):Void
-    {
-        //
-    }
-
-    public function setStrumTime(strumTime:Float):Void
-    {
-        this.strumTime = strumTime;
     }
 }

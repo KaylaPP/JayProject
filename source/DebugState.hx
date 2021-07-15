@@ -29,6 +29,8 @@ class DebugState extends MusicBeatState
 				add(note);
 		}
 
+		FlxG.sound.playMusic(Paths.inst("flight-of-the-bumblebee"), 1, false);
+
 		super.create();
 	}
 

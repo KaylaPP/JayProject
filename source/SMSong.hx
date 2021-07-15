@@ -25,6 +25,7 @@ class SMSong
     public var metadata:SMMetadata;
     public var songFileName:String;
     public var difficulty:String;
+    public var velocityCoefficient:Float = 5.0;
     public static var possibleDifficulties:Array<String>;
     public static var possibleNotes:String = "01234M";
 
@@ -55,7 +56,7 @@ class SMSong
         debugstr += "OFFSET\t" + getFeature(SMString, "OFFSET") + '\n';
         debugstr += "BPMS\t" + getFeature(SMString, "BPMS") + '\n';
         debugstr += "STOPS\t" + getFeature(SMString, "STOPS") + '\n';
-        //trace(debugstr);
+        trace(debugstr);
 
         metadata = 
         {
@@ -147,18 +148,13 @@ class SMSong
         }
         else
         {
-            var aaa:String = "";
             // SM style arrow placement
             for(i in 0...notes.length)
             {
                 var note = notes[i];
-                note.y += 1800.0 * note.getBeat();
-                aaa += i;
-                aaa += ":";
-                aaa += note.getBeat();
-                aaa += ", ";
+                note.y += 250.0 * velocityCoefficient * note.getBeat();
+                note.strumTime = metadata.OFFSET;
             }
-            trace(aaa);
         }
     }
 
