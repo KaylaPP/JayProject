@@ -23,7 +23,6 @@ class SMNote extends FlxSprite
         this.denominator = denominator;
         this.section = section;
         this.noteType = noteType;
-        x = 300.0 + Note.swagWidth * direction * 0.6;
 
         if(numerator == denominator)
             trace('big bad');
@@ -62,6 +61,8 @@ class SMNote extends FlxSprite
         setGraphicSize(Std.int(width * 0.6));
         updateHitbox();
         antialiasing = true;
+
+        x = 300.0 + 160 * direction * 0.6;
     }
 
     override function update(elapsed:Float)

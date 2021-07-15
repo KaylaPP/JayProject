@@ -51,6 +51,20 @@ class DebugState extends MusicBeatState
 				note.y += 500.0 * elapsed;
 			}
 		}
+		if(FlxG.keys.justPressed.RIGHT)
+		{
+			for(note in song.notes)
+			{
+				note.y -= 500.0;
+			}
+		}
+		if(FlxG.keys.justPressed.LEFT)
+		{
+			for(note in song.notes)
+			{
+				note.y += 500.0;
+			}
+		}
 
 		super.update(elapsed);
 	}
