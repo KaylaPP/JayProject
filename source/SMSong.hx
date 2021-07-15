@@ -66,12 +66,10 @@ class SMSong
             STOPS:getSMBeats(getFeature(SMString, "STOPS"))
         };
 
-        loadDifficulty(difficulty);
-
         trace(metadata);
     }
 
-    public function loadDifficulty(difficulty:String):Void
+    public function loadDifficulty(difficulty:String, ?constantScroll:Bool = false):Void
     {
         var NOTES:String = "";
         if(possibleDifficulties.indexOf(difficulty) == -1 || SMString.indexOf(difficulty) == -1)
@@ -123,7 +121,7 @@ class SMSong
                 else
                     tempstr += '2';
             }
-            else if(CHART.charAt(i) == ',')
+            else if(CHART.charAt(i) == ',' || i + 1 == CHART.length)
             {
                 var denominator:Int = Math.floor(tempstr.length / 4);
                 for(j in 0...tempstr.length)
@@ -137,22 +135,31 @@ class SMSong
                 section += 1;
             }
         }
-        if(tempstr != "")
-        {
-            var denominator:Int = Math.floor(tempstr.length / 4);
-            for(j in 0...tempstr.length)
-            {
-                if(tempstr.charAt(j) != '0')
-                {
-                    notes.push(new SMNote(this, j % 4, Math.floor(j / 4), denominator, section, tempstr.charAt(j)));
-                }
-            }
-            tempstr = "";
-        }
 
         // create elapsed time for notes (very difficult)
         // 120 bpm -> 1/120 mpb -> 1/2 spb -> 500 mspb
         // bpm -> 1/bpm -> 60/bpm -> 60*1000/bpm = mspb
+
+        // Place notes on the screen
+        if(constantScroll)
+        {
+            // FNF style arrow placement
+        }
+        else
+        {
+            var aaa:String = "";
+            // SM style arrow placement
+            for(i in 0...notes.length)
+            {
+                var note = notes[i];
+                note.y += 1800.0 * note.getBeat();
+                aaa += i;
+                aaa += ":";
+                aaa += note.getBeat();
+                aaa += ", ";
+            }
+            trace(aaa);
+        }
     }
 
     private function getFeature(SMString:String, feature:String):String

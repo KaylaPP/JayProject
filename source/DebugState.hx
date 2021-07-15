@@ -19,17 +19,38 @@ class DebugState extends MusicBeatState
 
 	override public function create():Void
 	{
-		song = new SMSong("grass-skirt-crowdkill");
+		song = new SMSong("Bumblebee");
 		song.parseSM();
 		song.loadDifficulty("Hard");
+
+		for(note in song.notes)
+		{
+			if(note.noteType == '1' || note.noteType == '2')
+				add(note);
+		}
 
 		super.create();
 	}
 
 	override function update(elapsed:Float)
 	{
-		if(FlxG.keys.justPressed.ESCAPE)
+		if(FlxG.keys.pressed.ESCAPE || FlxG.keys.justPressed.ENTER)
 			FlxG.switchState(new TitleState());
+
+		if(FlxG.keys.pressed.UP)
+		{
+			for(note in song.notes)
+			{
+				note.y -= 500.0 * elapsed;
+			}
+		}
+		if(FlxG.keys.pressed.DOWN)
+		{
+			for(note in song.notes)
+			{
+				note.y += 500.0 * elapsed;
+			}
+		}
 
 		super.update(elapsed);
 	}

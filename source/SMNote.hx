@@ -3,9 +3,9 @@ import flixel.FlxSprite;
 class SMNote extends FlxSprite
 {
     public var direction:Int;
-    public var numerator:Int;
-    public var denominator:Int;
-    public var section:Int;
+    public var numerator:Float;
+    public var denominator:Float;
+    public var section:Float;
     public var strumTime:Float;
     public var noteType:String;
     public var hasSustain:Bool = false;
@@ -23,16 +23,62 @@ class SMNote extends FlxSprite
         this.denominator = denominator;
         this.section = section;
         this.noteType = noteType;
+        x = 300.0 + Note.swagWidth * direction * 0.6;
+
+        if(numerator == denominator)
+            trace('big bad');
+
+        frames = Paths.getSparrowAtlas('NOTE_assets', 'shared');
+
+        animation.addByPrefix('bomb', 'bomb');
+
+        animation.addByPrefix('greenScroll', 'green0');
+        animation.addByPrefix('redScroll', 'red0');
+        animation.addByPrefix('blueScroll', 'blue0');
+        animation.addByPrefix('purpleScroll', 'purple0');
+
+        animation.addByPrefix('purpleholdend', 'pruple end hold');
+        animation.addByPrefix('greenholdend', 'green hold end');
+        animation.addByPrefix('redholdend', 'red hold end');
+        animation.addByPrefix('blueholdend', 'blue hold end');
+
+        animation.addByPrefix('purplehold', 'purple hold piece');
+        animation.addByPrefix('greenhold', 'green hold piece');
+        animation.addByPrefix('redhold', 'red hold piece');
+        animation.addByPrefix('bluehold', 'blue hold piece');
+
+        switch(direction)
+        {
+            case 0:
+                animation.play('purpleScroll');
+            case 1:
+                animation.play('blueScroll');
+            case 2:
+                animation.play('greenScroll');
+            case 3:
+                animation.play('redScroll');
+        }
+
+        setGraphicSize(Std.int(width * 0.6));
+        updateHitbox();
+        antialiasing = true;
     }
 
     override function update(elapsed:Float)
     {
         super.update(elapsed);
+
+        //y -= currentSong.metadata.BPMS[0].VAL * 2.0 * elapsed;
     }
 
     public function addSustain(sustainEnd:SMNote):Void
     {
         this.sustainEnd = sustainEnd;
+    }
+
+    public function getBeat():Float
+    {
+        return (this.section + (this.numerator / this.denominator));
     }
 
     public function setScreenPosition(startX:Float, centerScroll:Bool, scrollSpeedMultiplier:Int, ?isEnemyNote:Bool = false):Void
