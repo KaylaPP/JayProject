@@ -25,7 +25,11 @@ class SMSong
     public var metadata:SMMetadata;
     public var songFileName:String;
     public var difficulty:String;
+
+    public var curStep:Float = 0.0;
+    public var elapsedTime:Float = 0.0;
     public var velocityCoefficient:Float = 5.0;
+
     public static var possibleDifficulties:Array<String>;
     public static var possibleNotes:String = "01234M";
 
@@ -152,7 +156,9 @@ class SMSong
             for(i in 0...notes.length)
             {
                 var note = notes[i];
-                note.y += 250.0 * velocityCoefficient * note.getBeat();
+                note.y += 250.0 * velocityCoefficient * (note.getBeat() - curStep) / (metadata.BPMS[0].VAL * 60.0);
+                //note.y += 250.0 * velocityCoefficient * (note.getBeat() - curStep);
+                //note.y += 250.0 * velocityCoefficient * note.getBeat();
                 note.strumTime = metadata.OFFSET;
             }
         }

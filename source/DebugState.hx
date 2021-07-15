@@ -9,6 +9,8 @@ class DebugState extends MusicBeatState
     public static var doSong:Bool = false;
     public static var songLoaded:Bool = false;
 
+	public static var totalElapsed:Float = 0.0;
+
 	var song:SMSong;
 
     public function new()
@@ -37,6 +39,9 @@ class DebugState extends MusicBeatState
 
 	override function update(elapsed:Float)
 	{
+		totalElapsed += elapsed;
+		song.curStep = elapsedAndBPMToBeat(totalElapsed, song.metadata.BPMS[0].VAL);
+
 		if(FlxG.keys.pressed.ESCAPE || FlxG.keys.justPressed.ENTER)
 			FlxG.switchState(new TitleState());
 
@@ -83,6 +88,16 @@ class DebugState extends MusicBeatState
 		var difficulties:Array<String> = new Array<String>();
 
 		return difficulties;
+	}
+
+	// This function will have to be expanded much further later to accomodate variable bpm
+	public static function elapsedAndBPMToBeat(elapsed:Float, BPM:Float):Float
+	{
+		var beat:Float = 0.0;
+
+		beat = BPM * (elapsed / 60.0);
+
+		return beat;
 	}
 
 	function truncateFloat( number : Float, precision : Int): Float 

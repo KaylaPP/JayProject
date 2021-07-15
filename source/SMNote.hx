@@ -73,7 +73,8 @@ class SMNote extends FlxSprite
 
         DebugState.doSong = true;
 
-        y -= currentSong.metadata.BPMS[0].VAL * currentSong.velocityCoefficient * elapsed;
+        y += 250.0 * currentSong.velocityCoefficient * (getBeat() - currentSong.curStep) / (currentSong.metadata.BPMS[0].VAL * 60.0);
+
         if(y <= 0)
         {
             if(visible)
