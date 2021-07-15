@@ -6,6 +6,9 @@ using StringTools;
 
 class DebugState extends MusicBeatState
 {
+    public static var doSong:Bool = false;
+    public static var songLoaded:Bool = false;
+
 	var song:SMSong;
 
     public function new()
@@ -29,8 +32,6 @@ class DebugState extends MusicBeatState
 				add(note);
 		}
 
-		FlxG.sound.playMusic(Paths.inst("flight-of-the-bumblebee"), 1, false);
-
 		super.create();
 	}
 
@@ -38,6 +39,12 @@ class DebugState extends MusicBeatState
 	{
 		if(FlxG.keys.pressed.ESCAPE || FlxG.keys.justPressed.ENTER)
 			FlxG.switchState(new TitleState());
+
+		if(doSong && !songLoaded)
+		{
+			songLoaded = true;
+			FlxG.sound.playMusic(Paths.inst("flight-of-the-bumblebee"), 1, false);
+		}
 
 		if(FlxG.keys.pressed.UP)
 		{
