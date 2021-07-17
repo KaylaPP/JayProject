@@ -31,6 +31,7 @@ class FreeplayState extends MusicBeatState
 	var intendedScore:Int = 0;
 
 	private var artistNames:Array<String>;
+	private var artistText:FlxText;
 
 	private var grpSongs:FlxTypedGroup<Alphabet>;
 	private var curPlaying:Bool = false;
@@ -118,6 +119,10 @@ class FreeplayState extends MusicBeatState
 			// DONT PUT X IN THE FIRST PARAMETER OF new ALPHABET() !!
 			// songText.screenCenter(X);
 		}
+
+		artistText = new FlxText();
+		artistText.setFormat(Paths.font("vcr.ttf"), 32, FlxColor.WHITE, RIGHT);
+		add(artistText);
 
 		scoreText = new FlxText(5, 5, 0, "", 32);
 		// scoreText.autoSize = false;
@@ -350,6 +355,10 @@ class FreeplayState extends MusicBeatState
 			if (curDifficulty > 2)
 				curDifficulty = 2;
 		}
+
+		artistText.text = artistNames[curSelected];
+		artistText.screenCenter();
+		artistText.x = FlxG.width - artistText.width;
 	}
 }
 
