@@ -32,6 +32,7 @@ class FreeplayState extends MusicBeatState
 
 	private var artistNames:Array<String>;
 	private var artistText:FlxText;
+	private var curSongSelected:FlxSprite;
 
 	private var grpSongs:FlxTypedGroup<Alphabet>;
 	private var curPlaying:Bool = false;
@@ -120,7 +121,7 @@ class FreeplayState extends MusicBeatState
 			// songText.screenCenter(X);
 		}
 
-		artistText = new FlxText();
+		artistText = new FlxText(0, 0, ".");
 		artistText.setFormat(Paths.font("vcr.ttf"), 32, FlxColor.WHITE, RIGHT);
 		add(artistText);
 
@@ -227,6 +228,9 @@ class FreeplayState extends MusicBeatState
 			changeDiff(-1);
 		if (controls.RIGHT_P)
 			changeDiff(1);
+
+		artistText.x = curSongSelected.x;
+		artistText.y = curSongSelected.y + 75;
 
 		if (controls.BACK)
 		{
@@ -336,6 +340,7 @@ class FreeplayState extends MusicBeatState
 
 			if (item.targetY == 0)
 			{
+				curSongSelected = item;
 				item.alpha = 1;
 				// item.setGraphicSize(Std.int(item.width));
 			}
@@ -358,7 +363,7 @@ class FreeplayState extends MusicBeatState
 
 		artistText.text = artistNames[curSelected];
 		artistText.screenCenter();
-		artistText.x = FlxG.width - artistText.width;
+		artistText.updateHitbox();
 	}
 }
 
