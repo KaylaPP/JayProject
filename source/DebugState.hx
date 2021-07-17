@@ -53,7 +53,7 @@ class DebugState extends MusicBeatState
 		if(songLoaded)
 		{
 			song.curStep = elapsedAndBPMToBeat(totalElapsed, song.metadata.BPMS[0].VAL);
-			totalElapsed = song.metadata.OFFSET + FlxG.sound.music.time / 1000.0;
+			totalElapsed = song.metadata.OFFSET * 1000.0 + FlxG.sound.music.time;
 		}
 
 		if(FlxG.keys.pressed.UP)
@@ -98,6 +98,8 @@ class DebugState extends MusicBeatState
 	// This function will have to be expanded much further later to accomodate variable bpm
 	public static function elapsedAndBPMToBeat(elapsed:Float, BPM:Float):Float
 	{
+		elapsed = elapsed / 1000.0;
+
 		var beat:Float = 0.0;
 
 		beat = BPM * (elapsed / 60.0);

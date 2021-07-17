@@ -30,6 +30,8 @@ class FreeplayState extends MusicBeatState
 	var lerpScore:Int = 0;
 	var intendedScore:Int = 0;
 
+	private var artistNames:Array<String>;
+
 	private var grpSongs:FlxTypedGroup<Alphabet>;
 	private var curPlaying:Bool = false;
 
@@ -39,9 +41,25 @@ class FreeplayState extends MusicBeatState
 	{
 		var initSonglist = CoolUtil.coolTextFile(Paths.txt('freeplaySonglist'));
 
+		var artistIndex:Int = 0;
+		artistNames = new Array<String>();
+
 		for (i in 0...initSonglist.length)
 		{
-			songs.push(new SongMetadata(initSonglist[i], 1, 'gf'));
+			if(initSonglist[i].indexOf('--') != 0)
+			{
+				artistIndex = initSonglist[i].indexOf('--') + 2;
+				artistNames.push(initSonglist[i].substr(artistIndex));
+			}
+			else 
+			{
+				artistNames.push("");
+			}
+
+			if(artistIndex == 0)
+				songs.push(new SongMetadata(initSonglist[i], 1, 'gf'));
+			else
+				songs.push(new SongMetadata(initSonglist[i].substr(0, artistIndex - 2), 1, 'gf'));
 		}
 
 		/* 
