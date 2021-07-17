@@ -37,6 +37,7 @@ class MainMenuState extends MusicBeatState
 	var newInput:Bool = true;
 
 	public static var gameVer:String = "JayPack Version 0.8 BETA";
+	public static var displayGameVer:String;
 
 	var magenta:FlxSprite;
 	var camFollow:FlxObject;
@@ -48,8 +49,10 @@ class MainMenuState extends MusicBeatState
 		DiscordClient.changePresence("In the Menus", null);
 		#end
 
+		displayGameVer = gameVer;
+
 		#if debug
-		gameVer += " DEBUG";
+		displayGameVer += " DEBUG";
 		#end
 
 		if (!FlxG.sound.music.playing)
@@ -104,7 +107,7 @@ class MainMenuState extends MusicBeatState
 
 		FlxG.camera.follow(camFollow, null, 0.06);
 
-		var versionShit:FlxText = new FlxText(5, FlxG.height - 18, 0, gameVer, 12);
+		var versionShit:FlxText = new FlxText(5, FlxG.height - 18, 0, displayGameVer, 12);
 		versionShit.scrollFactor.set();
 		versionShit.setFormat("VCR OSD Mono", 16, FlxColor.WHITE, LEFT, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
 		add(versionShit);

@@ -13,6 +13,8 @@ class SMNote extends FlxSprite
     public var hasSustain:Bool = false;
     public var sustainEnd:SMNote;
 
+    public var startY:Float = 0.0;
+
     private var currentSong:SMSong;
 
     public function new(currentSong:SMSong, direction:Int, numerator:Int, denominator:Int, section:Int, noteType:String)
@@ -72,14 +74,15 @@ class SMNote extends FlxSprite
         super.update(elapsed);
 
         DebugState.doSong = true;
+        
+        y = startY + currentSong.pixelCoefficient * currentSong.velocityCoefficient * (getBeat() - currentSong.curStep);
 
-        y += 250.0 * currentSong.velocityCoefficient * (getBeat() - currentSong.curStep) / (currentSong.metadata.BPMS[0].VAL * 60.0);
-
-        if(y <= 0)
+        if(y < 0)
         {
             if(visible)
             {
-                FlxG.sound.play(Paths.sound('boom', 'shared'));
+                trace('tick ' + getBeat());
+                FlxG.sound.play(Paths.sound('OPENITG_tick', 'shared'));
             }
             visible = false;
         }
@@ -92,6 +95,6 @@ class SMNote extends FlxSprite
 
     public function getBeat():Float
     {
-        return (this.section + (this.numerator / this.denominator));
+        return 4.0 * (this.section + (this.numerator / this.denominator));
     }
 }

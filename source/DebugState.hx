@@ -24,7 +24,7 @@ class DebugState extends MusicBeatState
 
 	override public function create():Void
 	{
-		song = new SMSong("Bumblebee");
+		song = new SMSong("bumblebee");
 		song.parseSM();
 		song.loadDifficulty("Hard");
 
@@ -39,16 +39,21 @@ class DebugState extends MusicBeatState
 
 	override function update(elapsed:Float)
 	{
-		totalElapsed += elapsed;
-		song.curStep = elapsedAndBPMToBeat(totalElapsed, song.metadata.BPMS[0].VAL);
-
 		if(FlxG.keys.pressed.ESCAPE || FlxG.keys.justPressed.ENTER)
+		{
+			FlxG.sound.music.stop();
 			FlxG.switchState(new TitleState());
+		}
 
 		if(doSong && !songLoaded)
 		{
 			songLoaded = true;
 			FlxG.sound.playMusic(Paths.inst("flight-of-the-bumblebee"), 1, false);
+		}
+		if(songLoaded)
+		{
+			song.curStep = elapsedAndBPMToBeat(totalElapsed, song.metadata.BPMS[0].VAL);
+			totalElapsed = song.metadata.OFFSET + FlxG.sound.music.time / 1000.0;
 		}
 
 		if(FlxG.keys.pressed.UP)
