@@ -75,7 +75,7 @@ class SMNote extends FlxSprite
 
         DebugState.doSong = true;
         
-        y = startY + currentSong.pixelCoefficient * currentSong.velocityCoefficient * (getBeat() - currentSong.curStep);
+        y = 2.0 * currentSong.pixelCoefficient * currentSong.velocityCoefficient * (getBeat() - currentSong.curStep);
 
         if(y < 0)
         {
