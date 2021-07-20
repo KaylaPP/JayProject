@@ -35,7 +35,9 @@ class NGio
 
 	public static function noLogin(api:String)
 	{
-		trace('INIT NOLOGIN');
+		#if debug
+trace('INIT NOLOGIN');
+#end
 		GAME_VER = "v" + Application.current.meta.get('version');
 
 		if (api.length != 0)
@@ -48,8 +50,12 @@ class NGio
 				{
 					GAME_VER = response.result.data.currentVersion;
 					GAME_VER_NUMS = GAME_VER.split(" ")[0].trim();
-					trace('CURRENT NG VERSION: ' + GAME_VER);
-					trace('CURRENT NG VERSION: ' + GAME_VER_NUMS);
+					#if debug
+trace('CURRENT NG VERSION: ' + GAME_VER);
+#end
+					#if debug
+trace('CURRENT NG VERSION: ' + GAME_VER_NUMS);
+#end
 					gotOnlineVer = true;
 				});
 
@@ -60,7 +66,9 @@ class NGio
 
 	public function new(api:String, encKey:String, ?sessionId:String)
 	{
-		trace("connecting to newgrounds");
+		#if debug
+trace("connecting to newgrounds");
+#end
 
 		NG.createAndCheckSession(api, sessionId);
 
@@ -68,14 +76,18 @@ class NGio
 		// Set the encryption cipher/format to RC4/Base64. AES128 and Hex are not implemented yet
 		NG.core.initEncryption(encKey); // Found in you NG project view
 
-		trace(NG.core.attemptingLogin);
+		#if debug
+trace(NG.core.attemptingLogin);
+#end
 
 		if (NG.core.attemptingLogin)
 		{
 			/* a session_id was found in the loadervars, this means the user is playing on newgrounds.com
 			 * and we should login shortly. lets wait for that to happen
 			 */
-			trace("attempting login");
+			#if debug
+trace("attempting login");
+#end
 			NG.core.onLogin.add(onNGLogin);
 		}
 		else
@@ -89,7 +101,9 @@ class NGio
 
 	function onNGLogin():Void
 	{
-		trace('logged in! user:${NG.core.user.name}');
+		#if debug
+trace('logged in! user:${NG.core.user.name}');
+#end
 		isLoggedIn = true;
 		FlxG.save.data.sessionId = NG.core.sessionId;
 		// FlxG.save.flush();
@@ -110,7 +124,9 @@ class NGio
 			for (id in NG.core.medals.keys())
 			{
 				var medal = NG.core.medals.get(id);
-				trace('loaded medal id:$id, name:${medal.name}, description:${medal.description}');
+				#if debug
+trace('loaded medal id:$id, name:${medal.name}, description:${medal.description}');
+#end
 			}
 
 			// Unlocking medals
@@ -128,7 +144,9 @@ class NGio
 			for (id in NG.core.scoreBoards.keys())
 			{
 				var board = NG.core.scoreBoards.get(id);
-				trace('loaded scoreboard id:$id, name:${board.name}');
+				#if debug
+trace('loaded scoreboard id:$id, name:${board.name}');
+#end
 			}
 		 */
 		// var board = NG.core.scoreBoards.get(8004);// ID found in NG project view
@@ -140,7 +158,9 @@ class NGio
 
 		// add an update listener so we know when we get the new scores
 		// board.onUpdate.add(onNGScoresFetch);
-		trace("shoulda got score by NOW!");
+		#if debug
+trace("shoulda got score by NOW!");
+#end
 		// board.requestScores(20);// get the best 10 scores ever logged
 		// more info on scores --- http://www.newgrounds.io/help/components/#scoreboard-getscores
 	}
@@ -158,7 +178,9 @@ class NGio
 					board.postScore(score, "Uhh meow?");
 				}
 
-				// trace('loaded scoreboard id:$id, name:${board.name}');
+				#if debug
+trace('loaded scoreboard id:$id, name:${board.name}');
+#end
 			}
 		}
 	}
@@ -171,7 +193,9 @@ class NGio
 		/* 
 			for (score in NG.core.scoreBoards.get(8737).scores)
 			{
-				trace('score loaded user:${score.user.name}, score:${score.formatted_value}');
+				#if debug
+trace('score loaded user:${score.user.name}, score:${score.formatted_value}');
+#end
 
 			}
 		 */
@@ -185,7 +209,9 @@ class NGio
 	inline static public function logEvent(event:String)
 	{
 		NG.core.calls.event.logEvent(event).send();
-		trace('should have logged: ' + event);
+		#if debug
+trace('should have logged: ' + event);
+#end
 	}
 
 	inline static public function unlockMedal(id:Int)

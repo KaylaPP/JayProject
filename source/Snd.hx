@@ -24,7 +24,9 @@ class Channel {
 	
 	public function poolBack(){
 		#if false
-		//trace("pool back");
+		#if debug
+trace("pool back");
+#end
 		#end
 		started 	= false;
 		paused 		= false;
@@ -64,7 +66,9 @@ class Channel {
 	public function onComplete() {
 		completed = true;
 		#if !prod
-		//trace("onComplete " + haxe.Timer.stamp() );
+		#if debug
+trace("onComplete " + haxe.Timer.stamp() );
+#end
 		#end
 		//stop();
 		if( onEnd!=null ) {
@@ -77,11 +81,15 @@ class Channel {
 	public function isComplete(){
 		#if !prod
 		if ( completed ){
-			//trace("already completed");
+			#if debug
+trace("already completed");
+#end
 		}
 		
 		if ( started ){
-			//trace("started ok");
+			#if debug
+trace("started ok");
+#end
 		}
 		#end
 		
@@ -192,8 +200,10 @@ class ChannelEventInstance extends Channel {//basically a sound instance
 		if ( completed ) return false;
 		
 		if ( data == null ) {
-			//#if !prod
-			//trace("[CEI]no data " + name);
+			#if !prod
+			#if debug
+trace("[CEI]no data " + name);
+#end
 			//#end
 			return false;
 		}
@@ -201,7 +211,9 @@ class ChannelEventInstance extends Channel {//basically a sound instance
 		var b : Bool = false;
 		data.getPaused( Cpp.addr(b));
 		#if !prod
-		//trace("getPaused:"+b);
+		#if debug
+trace("getPaused:"+b);
+#end
 		#end
 		return !b;
 	}
@@ -234,12 +246,16 @@ class ChannelEventInstance extends Channel {//basically a sound instance
 		var res = data.setTimelinePosition( pos );
 		if ( res != FMOD_OK){
 			#if debug
-			//trace("[SND][Channel]{"+name+"} Repositionning S err " + FaxeRef.fmodResultToString(res)+" to :"+pos+" ("+posMs+")");
+			#if debug
+trace("[SND][Channel]{"+name+"} Repositionning S err " + FaxeRef.fmodResultToString(res)+" to :"+pos+" ("+posMs+")");
+#end
 			#end
 		}
 		
 		#if debug
-		//trace("setPlayCursorMs "+posMs);
+		#if debug
+trace("setPlayCursorMs "+posMs);
+#end
 		#end
 	}
 	
@@ -255,7 +271,9 @@ class ChannelEventInstance extends Channel {//basically a sound instance
 		var res = data.getVolume( Cpp.addr(vol),Cpp.addr(fvol) );
 		if ( res != FMOD_OK){
 			#if debug
-			//trace("[SND][Channel]{"+name+"} getVolume err " + FaxeRef.fmodResultToString(res));
+			#if debug
+trace("[SND][Channel]{"+name+"} getVolume err " + FaxeRef.fmodResultToString(res));
+#end
 			#end
 		}
 		return vol;
@@ -263,22 +281,28 @@ class ChannelEventInstance extends Channel {//basically a sound instance
 	
 	public override function setVolume(v:Float){
 		if (data == null ){
-			//#if debug
-			//trace("no data for "+name);
+			#if debug
+			#if debug
+trace("no data for "+name);
+#end
 			//#end
 			return;
 		}
 		
 		var res = data.setVolume( hxd.Math.clamp(v,0,1) );
 		if ( res != FMOD_OK){
-			//#if debug
-			//trace("[SND][Channel]{"+name+"} setVolume err " + FaxeRef.fmodResultToString(res));
+			#if debug
+			#if debug
+trace("[SND][Channel]{"+name+"} setVolume err " + FaxeRef.fmodResultToString(res));
+#end
 			//#end
 		}
 		else {
 			//if ( isDebug ){
-				//#if !prod
-				//trace("[SND][Channel]{"+name+"} setVolume ok " + v);
+				#if !prod
+				#if debug
+trace("[SND][Channel]{"+name+"} setVolume ok " + v);
+#end
 				//#end
 			//}
 		}
@@ -351,16 +375,20 @@ class ChannelLowLevel extends Channel{
 		if ( completed ) return false;
 		
 		if (data == null) {
-			//#if !prod
-			//trace("no data no playing! "+name);
+			#if !prod
+			#if debug
+trace("no data no playing! "+name);
+#end
 			//#end
 			return false;
 		}
 		var b : Bool = false;
 		var res = data.isPlaying( Cpp.addr(b));
 		if ( res != FMOD_OK ){
-			//#if debug
-			//trace("[SND][ChannelLowLevel]{"+name+"} isPlaying err " + FaxeRef.fmodResultToString(res));
+			#if debug
+			#if debug
+trace("[SND][ChannelLowLevel]{"+name+"} isPlaying err " + FaxeRef.fmodResultToString(res));
+#end
 			//#end
 			return false;
 		}
@@ -395,8 +423,10 @@ class ChannelLowLevel extends Channel{
 		posU = Math.round( posMs );
 		var res = data.setPosition( posU, FmodTimeUnit.FTM_MS );
 		if ( res != FMOD_OK){
-			//#if debug
-			//trace("[SND][Channel]{"+name+"} Repositionning S err " + FaxeRef.fmodResultToString(res)+" to :"+posU+" ("+posMs+")");
+			#if debug
+			#if debug
+trace("[SND][Channel]{"+name+"} Repositionning S err " + FaxeRef.fmodResultToString(res)+" to :"+posU+" ("+posMs+")");
+#end
 			//#end
 		}
 	}
@@ -413,8 +443,10 @@ class ChannelLowLevel extends Channel{
 		var vol : cpp.Float32 = 0.0;
 		var res = data.getVolume( Cpp.addr(vol) );
 		if ( res != FMOD_OK){
-			//#if debug
-			//trace("[SND][Channel]{"+name+"} getVolume err " + FaxeRef.fmodResultToString(res));
+			#if debug
+			#if debug
+trace("[SND][Channel]{"+name+"} getVolume err " + FaxeRef.fmodResultToString(res));
+#end
 			//#end
 		}
 		return vol;
@@ -423,8 +455,10 @@ class ChannelLowLevel extends Channel{
 	public override function setVolume(v:Float){
 		if (data == null) {
 			//if ( isDebug ){
-				//#if !prod
-				//trace("[SND][Channel]{"+name+"} setVolume no data");
+				#if !prod
+				#if debug
+trace("[SND][Channel]{"+name+"} setVolume no data");
+#end
 				//#end
 			//}
 			return;
@@ -433,14 +467,18 @@ class ChannelLowLevel extends Channel{
 		var vcl = hxd.Math.clamp(v, 0, 1);
 		var res = data.setVolume( vcl );
 		if ( res != FMOD_OK){
-			//#if !prod
-			//trace("[SND][Channel]{"+name+"} setVolume err " + FaxeRef.fmodResultToString(res));
+			#if !prod
+			#if debug
+trace("[SND][Channel]{"+name+"} setVolume err " + FaxeRef.fmodResultToString(res));
+#end
 			//#end
 		}
 		else {
 			if ( isDebug ){
-				//#if !prod
-				//trace("[SND][Channel]{"+name+"} setVolume ok " + v+" corrected:"+vcl);
+				#if !prod
+				#if debug
+trace("[SND][Channel]{"+name+"} setVolume ok " + v+" corrected:"+vcl);
+#end
 				//#end
 			}
 		}
@@ -525,7 +563,9 @@ class SoundLowLevel extends Sound{
 		var res = data.getLength( Cpp.addr(pos), FmodTimeUnit.FTM_MS );
 		if ( res != FMOD_OK ){
 			#if debug
-			//trace("impossible to retrieve sound len");
+			#if debug
+trace("impossible to retrieve sound len");
+#end
 			#end
 		}
 		var posF = 1.0 * pos / 1000.0;
@@ -537,8 +577,12 @@ class SoundLowLevel extends Sound{
 		var chan = ChannelLowLevel.alloc( nativeChan, name );
 		
 		#if debug
-		//trace("[Sound] offset " + offsetMs);
-		//trace("play " + haxe.Timer.stamp() );
+		#if debug
+trace("[Sound] offset " + offsetMs);
+#end
+		#if debug
+trace("play " + haxe.Timer.stamp() );
+#end
 		#end
 		
 		@:privateAccess chan.started = true;
@@ -589,8 +633,10 @@ class SoundEvent extends Sound{
 		var pos : Int = 0;
 		var res = data.getLength( Cpp.addr(pos) );
 		if ( res != FMOD_OK ){
-			//#if !prod
-			//trace("impossible to retrieve sound len");
+			#if !prod
+			#if debug
+trace("impossible to retrieve sound len");
+#end
 			//#end
 		}
 		var posF = 1.0 * pos / 1000.0;
@@ -601,8 +647,10 @@ class SoundEvent extends Sound{
 		var nativeInstance : FmodStudioEventInstanceRef = data.createInstance();
 		var chan = ChannelEventInstance.alloc( nativeInstance, name );
 		
-		//#if !prod
-		//trace("play " + haxe.Timer.stamp() );
+		#if !prod
+		#if debug
+trace("play " + haxe.Timer.stamp() );
+#end
 		//#end
 		nativeInstance.start();
 		
@@ -673,7 +721,9 @@ class Snd {
 			curPlay.poolBack();
 			curPlay = null;
 			#if !prod
-			//trace(name+" stopped");
+			#if debug
+trace(name+" stopped");
+#end
 			//Lib.showStack();
 			#end
 		}
@@ -682,8 +732,10 @@ class Snd {
 	}
 	
 	public function dispose(){
-		//#if !prod
-		//trace(name+" disposing");
+		#if !prod
+		#if debug
+trace(name+" disposing");
+#end
 		//#end
 		
 		if ( isPlaying() ){
@@ -694,8 +746,10 @@ class Snd {
 			curPlay.dispose();
 			curPlay.poolBack();
 			curPlay = null;
-			//#if !prod
-			//trace(name+" disposed");
+			#if !prod
+			#if debug
+trace(name+" disposed");
+#end
 			//#end
 		}
 		
@@ -734,21 +788,27 @@ class Snd {
 	 */
 	public function start(loops:Int=0, vol:Float=1.0, ?startOffsetMs:Float=0.0) {
 		if ( DISABLED ) 			{
-			//#if debug
-			//trace("[SND] Disabled");
+			#if debug
+			#if debug
+trace("[SND] Disabled");
+#end
 			//#end
 			return;
 		}
 		if ( sound == null ){
-			//#if debug
-			//trace("[SND] no inner sound");
+			#if debug
+			#if debug
+trace("[SND] no inner sound");
+#end
 			//#end
 			return;
 		}
 
 		if ( isPlaying() ){
-			//#if !prod
-			//trace(name+" interrupting ");
+			#if !prod
+			#if debug
+trace(name+" interrupting ");
+#end
 			//#end
 			
 			stop();
@@ -763,13 +823,17 @@ class Snd {
 		curPlay = sound.play( startOffsetMs, loops, getRealVolume());
 		
 		if ( curPlay == null){
-			//#if !prod
-			//trace(" play missed?");
+			#if !prod
+			#if debug
+trace(" play missed?");
+#end
 			//#end
 		}
 		else {
-			//#if !prod
-			//trace("started");
+			#if !prod
+			#if debug
+trace("started");
+#end
 			//#end
 		}
 	}
@@ -779,14 +843,18 @@ class Snd {
 	 */
 	public function startNoStop(?loops:Int=0, ?vol:Float=1.0, ?startOffsetMs:Float=0.0) : Null<Channel>{
 		if ( DISABLED ) 			{
-			//#if debug
-			//trace("[SND] Disabled");
+			#if debug
+			#if debug
+trace("[SND] Disabled");
+#end
 			//#end
 			return null;
 		}
 		if ( sound == null ){
-			//#if debug
-			//trace("[SND] no inner sound");
+			#if debug
+			#if debug
+trace("[SND] no inner sound");
+#end
 			//#end
 			return null;
 		}
@@ -831,8 +899,10 @@ class Snd {
 		var str = "";
 		var res = fmodSystem.getSoundRAM( v0p, v1p, v2p );
 		if ( res != FMOD_OK){
-			//#if debug
-			//trace("[SND] cannot fetch snd ram dump ");
+			#if debug
+			#if debug
+trace("[SND] cannot fetch snd ram dump ");
+#end
 			//#end
 		}
 		
@@ -886,15 +956,21 @@ class Snd {
 	public function fadePlay(?fadeDuration = 100, ?endVolume:Float=1.0 ) {
 		var p = play(0.0001);
 		if ( p == null ){
-			//trace("nothing ret");
+			#if debug
+trace("nothing ret");
+#end
 		}
 		else {
 			if ( p.curPlay == null){
-				//trace("no curplay wtf?");
+				#if debug
+trace("no curplay wtf?");
+#end
 			}
 			else 
 			{
-				//trace("curplay ok");
+				#if debug
+trace("curplay ok");
+#end
 			}
 		}
 		tweenVolume(endVolume, fadeDuration);
@@ -909,8 +985,10 @@ class Snd {
 	
 	public function fadeStop( ?fadeDuration = 100 ) {
 		if ( !isPlaying()){
-			//#if !prod
-			//trace("not playing " + name+" winn not unfade");//can cause reentrancy issues
+			#if !prod
+			#if debug
+trace("not playing " + name+" winn not unfade");//can cause reentrancy issues
+#end
 			//#end
 			return null;
 		}
@@ -939,7 +1017,9 @@ class Snd {
 	public function isPlaying(){
 		if ( curPlay == null ){
 			#if !prod
-			//trace("no curplay");
+			#if debug
+trace("no curplay");
+#end
 			#end
 			return false;
 		}
@@ -948,7 +1028,9 @@ class Snd {
 	
 	public static function init(){
 		#if debug
-		trace("[Snd] fmod init");
+		#if debug
+trace("[Snd] fmod init");
+#end
 		#end
 		Faxe.fmod_init( 256 );
 		fmodSystem = FaxeRef.getSystem();
@@ -963,10 +1045,14 @@ class Snd {
 			s.dispose();
 		PLAYING.hardReset();
 		released = true;
-		//trace("releasing fmod");
+		#if debug
+trace("releasing fmod");
+#end
 		Faxe.fmod_release();
 		#if !prod
-		trace("fmod released");
+		#if debug
+trace("fmod released");
+#end
 		#end
 	}
 	
@@ -978,12 +1064,16 @@ class Snd {
 	function refresh() {
 		if ( curPlay != null ) {
 			var vol = getRealVolume();
-			//trace("r:"+vol);
+			#if debug
+trace("r:"+vol);
+#end
 			curPlay.setVolume( vol );
 		}
 		else {
-			//#if debug
-			//trace("[Snd] no playin no refresh "+name);
+			#if debug
+			#if debug
+trace("[Snd] no playin no refresh "+name);
+#end
 			//#end
 		}
 	}
@@ -993,8 +1083,10 @@ class Snd {
 			curPlay.setPlayCursorSec(pos);
 		}
 		else {
-			//#if debug
-			//trace("setPlayCursorSec/no current instance");
+			#if debug
+			#if debug
+trace("setPlayCursorSec/no current instance");
+#end
 			//#end
 		}
 	}
@@ -1003,8 +1095,10 @@ class Snd {
 		if (curPlay != null) 	
 			curPlay.setPlayCursorMs(pos);
 		else {
-			//#if debug
-			//trace("setPlayCursorMs/no current instance");
+			#if debug
+			#if debug
+trace("setPlayCursorMs/no current instance");
+#end
 			//#end
 		}
 	}
@@ -1012,8 +1106,10 @@ class Snd {
 	public function tweenVolume(v:Float, ?easing:h2d.Tweenie.TType, ?milliseconds:Float=100) : TweenV {
 		if ( easing == null ) easing = h2d.Tweenie.TType.TEase;
 		var t = TW.create(this, TVVVolume, v, easing, milliseconds);
-		//#if !prod 
-		//trace("tweening " + name+" to " + v);
+		#if !prod 
+		#if debug
+trace("tweening " + name+" to " + v);
+#end
 		//#end
 		return t;
 	}
@@ -1042,9 +1138,13 @@ class Snd {
 	static var _stop = function(t:TweenV){
 		#if !prod
 		//if( t.parent != null )
-			//trace(t.parent.name+" cbk stopped");
+			#if debug
+trace(t.parent.name+" cbk stopped");
+#end
 		//else 
-			//trace(" unbound stop called");
+			#if debug
+trace(" unbound stop called");
+#end
 		#end
 		t.parent.stop();
 	}
@@ -1053,8 +1153,10 @@ class Snd {
 		
 		//avoid unwanted crash
 		if ( released ){
-			//#if !prod
-			//trace("sorry released");
+			#if !prod
+			#if debug
+trace("sorry released");
+#end
 			//#end
 			return;
 		}
@@ -1068,8 +1170,10 @@ class Snd {
 	}
 	
 	function onComplete(){
-		//#if debug
-		//trace("onComplete " + haxe.Timer.stamp());
+		#if debug
+		#if debug
+trace("onComplete " + haxe.Timer.stamp());
+#end
 		//#end
 		
 		if (curPlay != null) {
@@ -1081,8 +1185,10 @@ class Snd {
 	
 	public function isComplete(){
 		if ( curPlay == null ) {
-			//#if!prod
-			//trace("comp: no cur play");
+			#if!prod
+			#if debug
+trace("comp: no cur play");
+#end
 			//#end
 			return true;
 		}
@@ -1099,8 +1205,10 @@ class Snd {
 	public static function loadSound( path:String, streaming : Bool, blocking : Bool  ) : Sound {
 		
 		if ( released ) {
-			//#if(!prod)
-			//trace("FMOD not active "+path);
+			#if(!prod)
+			#if debug
+trace("FMOD not active "+path);
+#end
 			//#end
 			return null;
 		}
@@ -1113,7 +1221,9 @@ class Snd {
 		mode |= FmodMode.FMOD_2D;
 		
 		
-		if( DEBUG_TRACK) trace("Snd:loading " + path);
+		if( DEBUG_TRACK) #if debug
+trace("Snd:loading " + path);
+#end
 		
 		var snd : cpp.RawPointer<faxe.Faxe.FmodSound> = cast  null;
 		var sndR :  cpp.RawPointer<cpp.RawPointer<faxe.Faxe.FmodSound>> = cpp.RawPointer.addressOf(snd);
@@ -1132,7 +1242,9 @@ class Snd {
 			
 		if ( res != FMOD_OK){
 			#if(!prod)
-			trace("unable to load " + path + " code:" + res+" msg:"+FaxeRef.fmodResultToString(res));
+			#if debug
+trace("unable to load " + path + " code:" + res+" msg:"+FaxeRef.fmodResultToString(res));
+#end
 			#end
 			return null;
 		}
@@ -1148,14 +1260,18 @@ class Snd {
 	
 	public static function loadEvent( path:String ) : Sound {
 		if ( released ) {
-			//#if (!prod) 
-			//trace("FMOD not active "+path);
+			#if (!prod) 
+			#if debug
+trace("FMOD not active "+path);
+#end
 			//#end
 			return null;
 		}
 		
 		
-		if( DEBUG_TRACK) trace("Snd:loadingEvent " + path);
+		if( DEBUG_TRACK) #if debug
+trace("Snd:loadingEvent " + path);
+#end
 		
 		if ( !path.startsWith("event:/"))
 			path = "event:/" + path;
@@ -1170,7 +1286,9 @@ class Snd {
 			ev.loadSampleData();
 			var t1 = haxe.Timer.stamp();
 			#if debug
-			//trace("time to preload:" + (t1 - t0));
+			#if debug
+trace("time to preload:" + (t1 - t0));
+#end
 			#end
 		}
 		
@@ -1179,8 +1297,10 @@ class Snd {
 	
 	public static function fromFaxe( path:String ) : Snd {
 		if ( released ) {
-			//#if (!prod) 
-			//trace("FMOD not active "+path);
+			#if (!prod) 
+			#if debug
+trace("FMOD not active "+path);
+#end
 			//#end
 			return null;
 		}
@@ -1188,7 +1308,9 @@ class Snd {
 		var s : cpp.Pointer<FmodSound> = faxe.Faxe.fmod_get_sound(path );
 		if ( s == null){
 			#if (!prod)
-			trace("unable to find " + path);
+			#if debug
+trace("unable to find " + path);
+#end
 			#end
 			return null;
 		}
@@ -1218,7 +1340,9 @@ class Snd {
 		var s : Sound = loadSound(path, streaming, blocking);
 		if ( s == null) {
 			#if !prod
-			trace("no such file " + path);
+			#if debug
+trace("no such file " + path);
+#end
 			#end
 			return null;
 		}
@@ -1233,7 +1357,9 @@ class Snd {
 		for ( p in PLAYING.backWardIterator())
 			if ( p.isComplete()){
 				#if !prod
-				//trace("[Snd] isComplete " + p);
+				#if debug
+trace("[Snd] isComplete " + p);
+#end
 				#end
 				p.onComplete();
 			}
@@ -1245,14 +1371,18 @@ class Snd {
 	public static function loadSingleBank( filename : String ) : Null<faxe.Faxe.FmodStudioBankRef>{
 		if ( released ) {
 			#if debug 
-			trace("FMOD not active "+filename);
+			#if debug
+trace("FMOD not active "+filename);
+#end
 			#end
 			return null;
 		}
 		
 		if ( filename.endsWith(".fsb")) {
 			#if debug 
-			trace("fsb files not supported");
+			#if debug
+trace("fsb files not supported");
+#end
 			#end
 			return null;//old fmod format is not supported
 		}
@@ -1261,7 +1391,9 @@ class Snd {
 		var fsys = FaxeRef.getStudioSystem();
 		var fbank : cpp.RawPointer < FmodStudioBank > = null;
 		
-		//trace("trying to load " + filename);
+		#if debug
+trace("trying to load " + filename);
+#end
 		
 		Lib.loadMode();
 		var result = fsys.loadBankFile( 
@@ -1272,16 +1404,22 @@ class Snd {
 		
 		if (result != FMOD_OK)	{
 			#if debug
-			trace("FMOD failed to LOAD sound bank with errcode:" + result + " errmsg:" + FaxeRef.fmodResultToString(result) + "\n");
+			#if debug
+trace("FMOD failed to LOAD sound bank with errcode:" + result + " errmsg:" + FaxeRef.fmodResultToString(result) + "\n");
+#end
 			#end
 			return null;
 		}
 		//else 
-		//	trace("loading...");
+		//	#if debug
+trace("loading...");
+#end
 			
 		var t1 = haxe.Timer.stamp();
 		#if debug
-		//trace("time to load bank:" + (t1 - t0)+"s");
+		#if debug
+trace("time to load bank:" + (t1 - t0)+"s");
+#end
 		#end
 		return cast fbank;
 	}

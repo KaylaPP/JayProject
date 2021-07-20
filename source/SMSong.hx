@@ -2,6 +2,7 @@ package;
 
 import FreeplayState.SongMetadata;
 import sys.io.File;
+import flixel.FlxG;
 
 typedef SMBeat =
 {
@@ -26,13 +27,17 @@ class SMSong
     public var songFileName:String;
     public var difficulty:String;
 
+    public var prevCurStep:Float = 0.0;
     public var curStep:Float = 0.0;
     public var elapsedTime:Float = 0.0;
     public var velocityCoefficient:Float = 4.0;
     public var pixelCoefficient:Float = 120.0;
+    public var useSMTheme:Bool;
 
     public static var possibleDifficulties:Array<String>;
     public static var possibleNotes:String = "01234M";
+
+    public var playstate:PlayState;
 
     public function new(songFileName:String)
     {
@@ -49,10 +54,43 @@ class SMSong
         possibleDifficulties.push("Beginner");  // Novice
     }
 
+    public function update(elapsed:Float):Void 
+    {
+        prevCurStep = curStep;
+        elapsedTime += elapsed * 1000.0;
+        curStep = elapsedAndBPMToBeat(elapsedTime, metadata.BPMS[0].VAL);
+        // add stops thing
+    }
+
+    public function currentBPM():Float 
+    {
+        var BPMS:Array<SMBeat> = metadata.BPMS;
+        if(BPMS.length == 1)
+            return metadata.BPMS[0].VAL;
+        // do the rest
+
+        return 0.0;
+    }
+
+    // This function will have to be expanded much further later to accomodate variable bpm
+	public static function elapsedAndBPMToBeat(elapsed:Float, BPM:Float):Float
+    {
+        elapsed = elapsed / 1000.0;
+
+        var beat:Float = 0.0;
+
+        beat = BPM * (elapsed / 60.0);
+
+        return beat;
+    }
+
     public function parseSM():Void
     {
-        SMString = File.getContent("assets/stepmania/" + songFileName + "/" + songFileName +  ".sm");
+        SMString = File.getContent("assets/data/" + songFileName + "/" + songFileName +  ".sm");
         SMString = strReplace(SMString, "\r\n", "\n");
+        #if debug
+        trace('strreplaced');
+        #end
 
         var debugstr:String = "\n";
 
@@ -61,7 +99,9 @@ class SMSong
         debugstr += "OFFSET\t" + getFeature(SMString, "OFFSET") + '\n';
         debugstr += "BPMS\t" + getFeature(SMString, "BPMS") + '\n';
         debugstr += "STOPS\t" + getFeature(SMString, "STOPS") + '\n';
+        #if debug
         trace(debugstr);
+        #end
 
         metadata = 
         {
@@ -72,7 +112,11 @@ class SMSong
             STOPS:getSMBeats(getFeature(SMString, "STOPS"))
         };
 
+        #if debug
         trace(metadata);
+        #end
+
+        elapsedTime = metadata.OFFSET * 1000.0;
     }
 
     public function loadDifficulty(difficulty:String, ?constantScroll:Bool = false):Void
@@ -90,13 +134,17 @@ class SMSong
                     break;
                 }
             }
+            #if debug
             trace("\n"+NOTES);
+            #end
         }
         else
         {
             NOTES = SMString.substr(0, SMString.indexOf(difficulty));
             NOTES = getFeature(SMString.substr(NOTES.lastIndexOf("#NOTES")), "NOTES");
+            #if debug
             trace("\n"+NOTES);
+            #end
         }
 
         // skip over random attributes and go straight into the chart
@@ -134,7 +182,8 @@ class SMSong
                 {
                     if(tempstr.charAt(j) != '0')
                     {
-                        notes.push(new SMNote(this, j % 4, Math.floor(j / 4), denominator, section, tempstr.charAt(j)));
+                        var jj:Float = j;
+                        notes.push(new SMNote(this, j % 4, Math.floor(jj / 4), denominator, section, tempstr.charAt(j)));
                     }
                 }
                 tempstr = "";
@@ -161,6 +210,8 @@ class SMSong
                 note.strumTime = metadata.OFFSET;
             }
         }
+
+        notes.sort((a, b) -> Std.int(a.getBeat() - b.getBeat()));
     }
 
     private function getFeature(SMString:String, feature:String):String
@@ -265,7 +316,7 @@ class SMSong
 
     public static function strReplace(str:String, pattern:String, newpattern:String):String
     {
-        while(str.indexOf(pattern) != -1)
+        while(str.indexOf(pattern) >= 0)
         {
             str = str.substr(0, str.indexOf(pattern)) + newpattern + str.substr(str.indexOf(pattern) + pattern.length);
         }

@@ -157,7 +157,9 @@ class Note extends FlxSprite
 			}
 			animation.play('bomb');
 		}
-		// trace(prevNote);
+		#if debug
+		//trace(prevNote);
+		#end
 
 		if (FlxG.save.data.downscroll && isSustainNote)
 			flipY = true;
@@ -241,8 +243,8 @@ class Note extends FlxSprite
 				&& strumTime < Conductor.songPosition + (Conductor.safeZoneOffset * (0.5))
 				&& noteType == 0 && isSustainNote && getRootNote().wasGoodHit)
 				canBeHit = true;
-			else if(noteDiff < Conductor.safeZoneOffset * 0.25
-				&& noteDiff > Conductor.safeZoneOffset * -0.25 && noteType == 1)
+			else if(noteDiff < 25.0
+				&& noteDiff > -25.0 && noteType == 1)
 				canBeHit = true;
 			else
 				canBeHit = false;

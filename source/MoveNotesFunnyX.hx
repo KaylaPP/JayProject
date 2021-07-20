@@ -292,8 +292,12 @@ class MoveNotesFunnyX
             {
                 isFirstTime = false;
                 i++;
-                trace('new i value:');
-                trace(i);
+                #if debug
+trace('new i value:');
+#end
+                #if debug
+trace(i);
+#end
                 if(i < commands.length)
                 {
                     runCommand(commands[i]);

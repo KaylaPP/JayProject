@@ -1,22 +1,21 @@
 package;
 
 import flixel.FlxG;
+import flixel.FlxSprite;
 
 using StringTools;
 
 class DebugState extends MusicBeatState
 {
-    public static var doSong:Bool = false;
-    public static var songLoaded:Bool = false;
-
-	public static var totalElapsed:Float = 0.0;
-
-	var song:SMSong;
+	var sprite:FlxSprite;
+	var index:Int = 0; // max 48
 
     public function new()
     {
         #if sys
-        trace("you can read SM files!");
+        #if debug
+		trace("you can read SM files!");
+		#end
         #end
 
         super();
@@ -24,94 +23,13 @@ class DebugState extends MusicBeatState
 
 	override public function create():Void
 	{
-		song = new SMSong("bumblebee");
-		song.parseSM();
-		song.loadDifficulty("Hard");
-
-		for(note in song.notes)
-		{
-			if(note.noteType == '1' || note.noteType == '2')
-				add(note);
-		}
-
 		super.create();
 	}
 
 	override function update(elapsed:Float)
 	{
-		if(FlxG.keys.pressed.ESCAPE || FlxG.keys.justPressed.ENTER)
-		{
-			FlxG.sound.music.stop();
-			FlxG.switchState(new TitleState());
-		}
-
-		if(doSong && !songLoaded)
-		{
-			songLoaded = true;
-			FlxG.sound.playMusic(Paths.inst("flight-of-the-bumblebee"), 1, false);
-		}
-		if(songLoaded)
-		{
-			song.curStep = elapsedAndBPMToBeat(totalElapsed, song.metadata.BPMS[0].VAL);
-			totalElapsed = song.metadata.OFFSET * 1000.0 + FlxG.sound.music.time;
-		}
-
-		if(FlxG.keys.pressed.UP)
-		{
-			for(note in song.notes)
-			{
-				note.y -= 500.0 * elapsed;
-			}
-		}
-		if(FlxG.keys.pressed.DOWN)
-		{
-			for(note in song.notes)
-			{
-				note.y += 500.0 * elapsed;
-			}
-		}
-		if(FlxG.keys.justPressed.RIGHT)
-		{
-			for(note in song.notes)
-			{
-				note.y -= 500.0;
-			}
-		}
-		if(FlxG.keys.justPressed.LEFT)
-		{
-			for(note in song.notes)
-			{
-				note.y += 500.0;
-			}
-		}
-
 		super.update(elapsed);
-	}
 
-	function getDifficulties(sm:String):Array<String>
-	{
-		var difficulties:Array<String> = new Array<String>();
-
-		return difficulties;
-	}
-
-	// This function will have to be expanded much further later to accomodate variable bpm
-	public static function elapsedAndBPMToBeat(elapsed:Float, BPM:Float):Float
-	{
-		elapsed = elapsed / 1000.0;
-
-		var beat:Float = 0.0;
-
-		beat = BPM * (elapsed / 60.0);
-
-		return beat;
-	}
-
-	function truncateFloat( number : Float, precision : Int): Float 
-	{
-		var num = number;
-		num = num * Math.pow(10, precision);
-		num = Math.round( num ) / Math.pow(10, precision);
-		return num;
+		FlxG.switchState(new TitleState());
 	}
 }

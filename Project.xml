@@ -93,8 +93,6 @@
 	<assets path='art/readme.txt' rename='FUNKIN-readme.txt'/>
 	<assets path='README.md' rename='README.txt'/>
 	<!-- <template path='mods' /> -->
-	
-	<assets path="assets/stepmania"	library="stepmania"/>
 
 	<assets path="CHANGELOG.md" rename='changelog.txt'/>
 

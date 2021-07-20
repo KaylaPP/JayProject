@@ -35,7 +35,9 @@ class OptionsMenu extends MusicBeatState
 			"\nCenter Arrows " + (!FlxG.save.data.centerArrows ? "off" : "on") +
 			"\nFuck You");
 		
-		trace(controlsStrings);
+		#if debug
+trace(controlsStrings);
+#end
 
 		menuBG.color = 0xFFea71fd;
 		menuBG.setGraphicSize(Std.int(menuBG.width * 1.1));

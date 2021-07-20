@@ -1,5 +1,9 @@
 package;
 
+import flixel.tweens.FlxTween;
+import flixel.FlxSubState;
+import flixel.effects.FlxFlicker;
+import flixel.FlxCamera;
 import flash.text.TextField;
 import flixel.FlxG;
 import flixel.FlxSprite;
@@ -19,6 +23,10 @@ using StringTools;
 
 class FreeplayState extends MusicBeatState
 {
+	public static var optionSubstateClosed:Bool = false;
+	public static var loadSMSong:Bool = false;
+	public static var SMDifficulties:Array<String> = ['Novice', 'Easy', 'Medium', 'Hard', 'Challenge', 'Edit'];
+
 	var songs:Array<SongMetadata> = [];
 
 	var selector:FlxText;
@@ -39,8 +47,42 @@ class FreeplayState extends MusicBeatState
 
 	private var iconArray:Array<HealthIcon> = [];
 
+	private var mainSelectCam:FlxCamera;
+	private var optionsCam:FlxCamera;
+	private var bgCam:FlxCamera;
+	private var songSelected:Bool = false;
+	private var menuTweened:Bool = false;
+	private var selectElapsed:Float = 0.0;
+	private var acceptedCount:Int = 0;
+	private var timeLeftUntilSongBar:FlxSprite;
+	private var pressEnter:Alphabet;
+	private var songLoaded:Bool = false;
+
 	override function create()
 	{
+		PlayState.isSMSong = false;
+		bgCam = new FlxCamera(0, 0);
+		bgCam.bgColor = FlxColor.TRANSPARENT;
+		FlxG.cameras.add(bgCam);
+
+		mainSelectCam = new FlxCamera(0, 0);
+		mainSelectCam.bgColor = FlxColor.TRANSPARENT;
+		FlxG.cameras.add(mainSelectCam);
+
+		optionsCam = new FlxCamera(0, 0);
+		optionsCam.bgColor = FlxColor.TRANSPARENT;
+		FlxG.cameras.add(optionsCam);
+
+		timeLeftUntilSongBar = new FlxSprite(0, FlxG.height - 100).makeGraphic(1, 1, FlxColor.TRANSPARENT);
+		timeLeftUntilSongBar.camera = optionsCam;
+		add(timeLeftUntilSongBar);
+
+		pressEnter = new Alphabet(0, FlxG.height - 200, "Press ENTER for options menu", true);
+		pressEnter.y = timeLeftUntilSongBar.y - pressEnter.height;
+		pressEnter.camera = optionsCam;
+		pressEnter.alpha = 0;
+		add(pressEnter);
+
 		var initSonglist = CoolUtil.coolTextFile(Paths.txt('freeplaySonglist'));
 
 		var artistIndex:Int = 0;
@@ -97,9 +139,11 @@ class FreeplayState extends MusicBeatState
 		// LOAD CHARACTERS
 
 		var bg:FlxSprite = new FlxSprite().loadGraphic(Paths.image('menuBGBlue'));
+		bg.camera = bgCam;
 		add(bg);
 
 		grpSongs = new FlxTypedGroup<Alphabet>();
+		grpSongs.camera = mainSelectCam;
 		add(grpSongs);
 
 		for (i in 0...songs.length)
@@ -114,6 +158,7 @@ class FreeplayState extends MusicBeatState
 
 			// using a FlxGroup is too much fuss!
 			iconArray.push(icon);
+			icon.camera = mainSelectCam;
 			add(icon);
 
 			// songText.x += 40;
@@ -123,6 +168,7 @@ class FreeplayState extends MusicBeatState
 
 		artistText = new FlxText(0, 0, ".");
 		artistText.setFormat(Paths.font("vcr.ttf"), 32, FlxColor.WHITE, RIGHT);
+		artistText.camera = mainSelectCam;
 		add(artistText);
 
 		scoreText = new FlxText(5, 5, 0, "", 32);
@@ -132,12 +178,15 @@ class FreeplayState extends MusicBeatState
 
 		var scoreBG:FlxSprite = new FlxSprite(0, 0).makeGraphic(Std.int(FlxG.width * 0.35), 66, 0xFF000000);
 		scoreBG.alpha = 0.6;
+		scoreBG.camera = mainSelectCam;
 		add(scoreBG);
 
 		diffText = new FlxText(scoreText.x, scoreText.y + 36, 0, "", 24);
 		diffText.font = scoreText.font;
+		diffText.camera = mainSelectCam;
 		add(diffText);
 
+		scoreText.camera = mainSelectCam;
 		add(scoreText);
 
 		changeSelection();
@@ -150,25 +199,6 @@ class FreeplayState extends MusicBeatState
 		selector.size = 40;
 		selector.text = ">";
 		// add(selector);
-
-		var swag:Alphabet = new Alphabet(1, 0, "swag");
-
-		// JUST DOIN THIS SHIT FOR TESTING!!!
-		/* 
-			var md:String = Markdown.markdownToHtml(Assets.getText('CHANGELOG.md'));
-
-			var texFel:TextField = new TextField();
-			texFel.width = FlxG.width;
-			texFel.height = FlxG.height;
-			// texFel.
-			texFel.htmlText = md;
-
-			FlxG.stage.addChild(texFel);
-
-			// scoreText.textField.htmlText = md;
-
-			trace(md);
-		 */
 
 		super.create();
 	}
@@ -209,9 +239,9 @@ class FreeplayState extends MusicBeatState
 
 		scoreText.text = "PERSONAL BEST:" + lerpScore;
 
-		var upP = controls.UP_P;
-		var downP = controls.DOWN_P;
-		var accepted = controls.ACCEPT;
+		var upP = controls.UP_P && acceptedCount == 0;
+		var downP = controls.DOWN_P && acceptedCount == 0;
+		var accepted = controls.ACCEPT && acceptedCount <= 2;
 
 		if (upP)
 		{
@@ -224,15 +254,15 @@ class FreeplayState extends MusicBeatState
 
 		changeDiff(0);
 
-		if (controls.LEFT_P)
+		if (controls.LEFT_P && acceptedCount == 0)
 			changeDiff(-1);
-		if (controls.RIGHT_P)
+		if (controls.RIGHT_P && acceptedCount == 0)
 			changeDiff(1);
 
 		artistText.x = curSongSelected.x;
 		artistText.y = curSongSelected.y + 75;
 
-		if (controls.BACK)
+		if (controls.BACK && acceptedCount <= 2)
 		{
 			FlxG.sound.playMusic(Paths.music('freakyMenu'), 0);
 			FlxG.switchState(new MainMenuState());
@@ -240,17 +270,91 @@ class FreeplayState extends MusicBeatState
 
 		if (accepted)
 		{
-			var poop:String = Highscore.formatSong(songs[curSelected].songName.toLowerCase(), curDifficulty);
+			acceptedCount++;
 
-			trace(poop);
+			if(acceptedCount <= 2)
+				FlxG.sound.play(Paths.sound('confirmMenu'));
 
-			PlayState.SONG = Song.loadFromJson(poop, songs[curSelected].songName.toLowerCase());
-			PlayState.isStoryMode = false;
-			PlayState.storyDifficulty = curDifficulty;
+			songSelected = true;
 
-			PlayState.storyWeek = songs[curSelected].week;
-			trace('CUR WEEK' + PlayState.storyWeek);
+			FlxFlicker.flicker(curSongSelected, 0.5, 0.06, false, false, function(flick:FlxFlicker)
+			{
+				
+			});
+
+			FlxTween.tween(mainSelectCam, {x: -1.0 * FlxG.width}, 0.5);
+		}
+
+		if(songSelected)
+		{
+			selectElapsed += elapsed;
+			if(selectElapsed > 2.5 && !songLoaded)
+			{
+				songLoaded = true;
+				var poop:String = Highscore.formatSong(songs[curSelected].songName.toLowerCase(), curDifficulty);
+
+				#if debug
+				trace(poop);
+				#end
+
+				PlayState.SONG = Song.loadFromJson(poop, songs[curSelected].songName.toLowerCase());
+				trace('jsonloaded');
+				PlayState.isStoryMode = false;
+				PlayState.storyDifficulty = curDifficulty;
+
+				PlayState.storyWeek = songs[curSelected].week;
+				#if debug
+				trace('CUR WEEK' + PlayState.storyWeek);
+				#end
+				
+				PlayState.SMSONG = new SMSong(songs[curSelected].songName.toLowerCase());
+				PlayState.SMSONG.parseSM();
+				trace('smparsed');
+				PlayState.SMSONG.loadDifficulty(SMDifficulties[curSelected + 1]);
+				trace('smdiffloaded');
+			}
+			if(acceptedCount == 1 && selectElapsed > 2.5)
+			{
+				#if debug
+				trace('music time');
+				#end
+				LoadingState.loadAndSwitchState(new PlayState());
+			}
+			if(acceptedCount >= 2 && selectElapsed > 2.5 && !optionSubstateClosed)
+			{
+				#if debug
+				trace('select options!');
+				#end
+				trace("subStateOpened");
+				openSubState(new FNFSongOptionSubState());
+			}
+		}
+
+		if(optionSubstateClosed)
+		{
+			optionSubstateClosed = false;
 			LoadingState.loadAndSwitchState(new PlayState());
+		}
+
+		if(selectElapsed > 0.5)
+		{
+			timeLeftUntilSongBar.x = 0;
+			timeLeftUntilSongBar.y = FlxG.height - 100.0;
+			timeLeftUntilSongBar.makeGraphic(Math.ceil(FlxG.width * (selectElapsed - 0.5) / 2.0), 100, FlxColor.GREEN);
+			timeLeftUntilSongBar.alpha = 1.0;
+			pressEnter.alpha = 1.0;
+		}
+		if(selectElapsed > 2.5)
+		{
+			pressEnter.alpha = 0;
+		}
+		if(acceptedCount >= 2)
+		{
+			timeLeftUntilSongBar.alpha = 0.0;
+			if(accepted)
+			{
+				FlxFlicker.flicker(pressEnter, 2.0, 0.06);
+			}
 		}
 	}
 

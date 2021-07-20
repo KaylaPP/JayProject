@@ -70,7 +70,9 @@ class TitleState extends MusicBeatState
 
 		#if ng
 		var ng:NGio = new NGio(APIStuff.API, APIStuff.EncKey);
-		trace('NEWGROUNDS LOL');
+		#if debug
+trace('NEWGROUNDS LOL');
+#end
 		#end
 
 		FlxG.save.bind('funkin', 'ninjamuffin99');
