@@ -37,6 +37,7 @@ class SMNote extends FlxSprite
     public var isSustain:Bool = false;
     public var prevNote:SMNote;
     public var sustainEnd:SMNote;
+    public var dead:Bool = false;
 
     public var startY:Float = 0.0;
 
@@ -184,8 +185,8 @@ class SMNote extends FlxSprite
     override function update(elapsed:Float)
     {
         super.update(elapsed);
-        /*
-        if(y < 50)
+        
+        if(y < 50 && !dead)
         {
             if(visible)
             {
@@ -195,8 +196,9 @@ class SMNote extends FlxSprite
                 FlxG.sound.play(Paths.sound('OPENITG_tick', 'shared'));
             }
             visible = false;
+            dead = true;
             this.kill();
-        }*/
+        }
     }
 
     public function goodHit()

@@ -1,11 +1,14 @@
 package;
 
+import haxe.Timer;
 import FreeplayState.SongMetadata;
 import sys.io.File;
 import flixel.FlxG;
+import flixel.util.FlxSort;
 
 typedef SMBeat =
 {
+    var TIME:Float; // possibly not needed
     var BEAT:Float;
     var VAL:Float; // can be used for stops or bpm changes
 }
@@ -34,6 +37,9 @@ class SMSong
     public var pixelCoefficient:Float = 120.0;
     public var useSMTheme:Bool;
 
+    private var timer:Timer;
+    public var songActive:Bool = false;
+
     public static var possibleDifficulties:Array<String>;
     public static var possibleNotes:String = "01234M";
 
@@ -52,36 +58,6 @@ class SMSong
         possibleDifficulties.push("Medium");    // Medium
         possibleDifficulties.push("Easy");      // Easy
         possibleDifficulties.push("Beginner");  // Novice
-    }
-
-    public function update(elapsed:Float):Void 
-    {
-        prevCurStep = curStep;
-        elapsedTime += elapsed * 1000.0;
-        curStep = elapsedAndBPMToBeat(elapsedTime, metadata.BPMS[0].VAL);
-        // add stops thing
-    }
-
-    public function currentBPM():Float 
-    {
-        var BPMS:Array<SMBeat> = metadata.BPMS;
-        if(BPMS.length == 1)
-            return metadata.BPMS[0].VAL;
-        // do the rest
-
-        return 0.0;
-    }
-
-    // This function will have to be expanded much further later to accomodate variable bpm
-	public static function elapsedAndBPMToBeat(elapsed:Float, BPM:Float):Float
-    {
-        elapsed = elapsed / 1000.0;
-
-        var beat:Float = 0.0;
-
-        beat = BPM * (elapsed / 60.0);
-
-        return beat;
     }
 
     public function parseSM():Void
@@ -112,11 +88,70 @@ class SMSong
             STOPS:getSMBeats(getFeature(SMString, "STOPS"))
         };
 
+        metadata.BPMS.sort((a, b) -> Std.int(a.BEAT - b.BEAT));
+        metadata.STOPS.sort((a, b) -> Std.int(a.BEAT - b.BEAT));
+
+        for(i in 0...metadata.BPMS.length - 1)
+        {
+            metadata.BPMS[i + 1].TIME = 60000.0 * (metadata.BPMS[i + 1].BEAT - metadata.BPMS[i].BEAT) / (metadata.BPMS[i].VAL) + metadata.BPMS[i].TIME;
+        }
+        // remove duplicates
+        while(false)
+        {
+            var breakFromWhile:Bool = true;
+            var breakFromFor:Bool = false;
+            for(i in 0...metadata.BPMS.length)
+            {
+                for(j in 0...metadata.BPMS.length)
+                {
+                    if(i != j && metadata.BPMS[i].BEAT == metadata.BPMS[j].BEAT && metadata.BPMS[i].VAL == metadata.BPMS[j].VAL && metadata.BPMS[i].TIME == metadata.BPMS[j].TIME)
+                    {
+                        trace('i: ' + metadata.BPMS[i] + ', j: ' + metadata.BPMS[j]);
+                        metadata.BPMS.remove(metadata.BPMS[i]);
+                        breakFromWhile = false;
+                        breakFromFor = true;
+                    }
+                    if(breakFromFor)
+                        break;
+                }
+                if(breakFromFor)
+                    break;
+            }
+            if(breakFromWhile)
+                break;
+        }
+        trace(metadata.BPMS);
+
+        while(true)
+        {
+            var breakFromWhile:Bool = true;
+            var breakFromFor:Bool = false;
+            for(i in 0...metadata.STOPS.length)
+            {
+                for(j in 0...metadata.STOPS.length)
+                {
+                    if(i != j && metadata.STOPS[i].BEAT == metadata.STOPS[j].BEAT && metadata.STOPS[i].VAL == metadata.STOPS[j].VAL && metadata.STOPS[i].TIME == metadata.STOPS[j].TIME)
+                    {
+                        metadata.STOPS.remove(metadata.STOPS[i]);
+                        breakFromWhile = false;
+                        breakFromFor = true;
+                    }
+                    if(breakFromFor)
+                        break;
+                }
+                if(breakFromFor)
+                    break;
+            }
+            if(breakFromWhile)
+                break;
+        }
+
         #if debug
         trace(metadata);
         #end
 
         elapsedTime = metadata.OFFSET * 1000.0;
+        curStep = -8.0;
     }
 
     public function loadDifficulty(difficulty:String, ?constantScroll:Bool = false):Void
@@ -180,7 +215,7 @@ class SMSong
                 var denominator:Int = Math.floor(tempstr.length / 4);
                 for(j in 0...tempstr.length)
                 {
-                    if(tempstr.charAt(j) != '0')
+                    if(tempstr.charAt(j) == '1' || tempstr.charAt(j) == '2') // change this pretty please
                     {
                         var jj:Float = j;
                         notes.push(new SMNote(this, j % 4, Math.floor(jj / 4), denominator, section, tempstr.charAt(j)));
@@ -276,34 +311,72 @@ class SMSong
         }
 
         var SMBeats:Array<SMBeat> = new Array<SMBeat>();
+        trace(SMBeatsStr);
         var BEAT:Float = 0.0;
         var VAL:Float = 0.0;
         for(beat in SMBeatsStr)
         {
-            var first:Bool = true;
+            trace(beat.substr(0, beat.indexOf('=')));
+            BEAT = Std.parseFloat(beat.substr(0, beat.indexOf('=')));
+            trace(beat.substr(beat.indexOf('=') + 1));
+            VAL = Std.parseFloat(beat.substr(beat.indexOf('=') + 1));
 
-            for(i in 0...beat.length)
-            {
-                if(beat.charAt(i) != '=')
-                {
-                    tempstr += beat.charAt(i);
-                }
-                else // beat.charAt(i) == '='
-                {
-                    first = false;
-
-                    // turn str into float
-                    BEAT = Std.parseFloat(tempstr);
-
-                    tempstr = "";
-                }
-            }
-            VAL = Std.parseFloat(tempstr);
-
-            SMBeats.push({ BEAT:truncateFloat(BEAT, 3), VAL:truncateFloat(VAL, 3) });
+            SMBeats.push({ TIME:0.0, BEAT:truncateFloat(BEAT, 3), VAL:truncateFloat(VAL, 3) });
         }
+        trace(SMBeats);
 
         return SMBeats;
+    }
+
+    public function startSong():Void 
+    {
+        timer = new Timer(0);
+        timer.run = function() 
+        {
+            if(songActive)
+            {
+                elapsedTime += 8.0; 
+                prevCurStep = curStep;
+
+                // calculate current beat
+                if(metadata.BPMS.length == 1)
+                {
+                    curStep = metadata.BPMS[0].VAL * elapsedTime / 60000.0;
+                }
+                else
+                {
+                    var elapsedStart:Float = 0.0;
+                    for(i in 0...metadata.BPMS.length)
+                    {
+                        if(elapsedTime > metadata.BPMS[i].TIME)
+                        {
+                            elapsedStart -= metadata.BPMS[i].TIME;
+                            if(Math.abs(elapsedStart) > Math.abs(elapsedTime))
+                            {
+                                elapsedStart += metadata.BPMS[i].TIME;
+                                break;
+                            }
+                        }
+                    }
+                    
+                    var startBeat:SMBeat = metadata.BPMS[0];
+                    for(v in metadata.BPMS)
+                    {
+                        if((v.TIME < elapsedTime || v.BEAT < curStep) && (v.BEAT > startBeat.BEAT || v.TIME > startBeat.TIME))
+                        {
+                            startBeat = v;
+                        }
+                    }
+
+                    curStep = startBeat.BEAT + startBeat.VAL * (elapsedTime - startBeat.TIME) / 60000.0;
+                    trace(curStep);
+                    if(prevCurStep > curStep)
+                        trace('prev is bigger ??????????????');
+                }
+            }
+        }; 
+
+        
     }
 
     public static function truncateFloat( number : Float, precision : Int): Float 

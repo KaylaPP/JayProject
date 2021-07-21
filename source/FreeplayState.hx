@@ -29,14 +29,14 @@ class FreeplayState extends MusicBeatState
 
 	var songs:Array<SongMetadata> = [];
 
-	var selector:FlxText;
-	var curSelected:Int = 0;
-	var curDifficulty:Int = 1;
+	public var selector:FlxText;
+	public static var curSelected:Int = 0;
+	public static var curDifficulty:Int = 1;
 
-	var scoreText:FlxText;
-	var diffText:FlxText;
-	var lerpScore:Int = 0;
-	var intendedScore:Int = 0;
+	public var scoreText:FlxText;
+	public var diffText:FlxText;
+	public var lerpScore:Int = 0;
+	public var intendedScore:Int = 0;
 
 	private var artistNames:Array<String>;
 	private var artistText:FlxText;
@@ -310,7 +310,7 @@ class FreeplayState extends MusicBeatState
 				PlayState.SMSONG = new SMSong(songs[curSelected].songName.toLowerCase());
 				PlayState.SMSONG.parseSM();
 				trace('smparsed');
-				PlayState.SMSONG.loadDifficulty(SMDifficulties[curSelected + 1]);
+				trace(SMDifficulties[curDifficulty + 1]);
 				trace('smdiffloaded');
 			}
 			if(acceptedCount == 1 && selectElapsed > 2.5)

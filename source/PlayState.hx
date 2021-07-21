@@ -1195,7 +1195,14 @@ trace("isSMSong = " + isSMSong);
 		lastReportedPlayheadPosition = 0;
 
 		if (!paused)
+		{
 			FlxG.sound.playMusic(Paths.inst(PlayState.SONG.song), 1, false);
+			if(isSMSong)
+			{
+				SMSONG.startSong();
+				SMSONG.songActive = true;
+			}
+		}
 		
 		FlxG.sound.music.onComplete = endSong;
 		vocals.play();
@@ -1502,6 +1509,8 @@ trace("isSMSong = " + isSMSong);
 			if (!startTimer.finished)
 				startTimer.active = true;
 			paused = false;
+			if(isSMSong)
+				SMSONG.songActive = true;
 
 			#if desktop
 			if (startTimer.finished)
@@ -1539,7 +1548,7 @@ trace("isSMSong = " + isSMSong);
 			vocals.pause();
 
 			FlxG.sound.music.play();
-			SMSONG.elapsedTime = FlxG.sound.music.time + SMSONG.metadata.OFFSET * 1000.0;
+			SMSONG.elapsedTime = FlxG.sound.music.time;
 			vocals.time = SMSONG.elapsedTime;
 			vocals.play();
 
@@ -1614,22 +1623,6 @@ trace("isSMSong = " + isSMSong);
 		hitTxt.text = "Sicks:  " + sicks + "\nCools:  " + cools + "\nGoods:  " + goods + "\nBads:   " + bads + "\nShits:  " + shits + "\nMisses: " + misses + "\nBombs:  " + bombs + "\n";
 		hitTxt.updateHitbox();
 		hitTxt.y = camHUD.height - hitTxt.height;
-
-		if (FlxG.keys.justPressed.ENTER && startedCountdown && canPause)
-		{
-			persistentUpdate = false;
-			persistentDraw = true;
-			paused = true;
-
-			// 1 / 1000 chance for Gitaroo Man easter egg
-			if (FlxG.random.bool(0.1))
-			{
-				// gitaroo man easter egg
-				FlxG.switchState(new GitarooPause());
-			}
-			else
-				openSubState(new PauseSubState(boyfriend.getScreenPosition().x, boyfriend.getScreenPosition().y));
-		}
 
 		if (FlxG.keys.justPressed.SEVEN)
 		{
@@ -1814,6 +1807,8 @@ trace("isSMSong = " + isSMSong);
 			persistentUpdate = false;
 			persistentDraw = false;
 			paused = true;
+			if(isSMSong)
+				SMSONG.songActive = false;
 
 			vocals.stop();
 			FlxG.sound.music.stop();
@@ -1934,16 +1929,17 @@ trace("isSMSong = " + isSMSong);
 		}
 		else if(generatedMusic && isSMSong)
 		{
-			SMSONG.update(elapsed);
+			//if((FlxG.sound.music.time > SMSONG.elapsedTime + 20 || FlxG.sound.music.time < SMSONG.elapsedTime - 20))
+			//	SMSONG.elapsedTime = FlxG.sound.music.time;
 			SMNotes.forEachAlive(function(note:SMNote) 
 			{
 				note.y = 50 + note.startY + -1.0 * (SMSONG.curStep) * SMSONG.pixelCoefficient * SMSONG.velocityCoefficient;
-				if((FlxG.sound.music.time > SMSONG.elapsedTime + 20 || FlxG.sound.music.time < SMSONG.elapsedTime - 20) && Math.floor(SMSONG.curStep) != Math.floor(SMSONG.prevCurStep) && SMSONG.curStep > 0.0)
+				if((FlxG.sound.music.time > SMSONG.elapsedTime + 20 || FlxG.sound.music.time < SMSONG.elapsedTime - 20) && Math.floor(SMSONG.curStep * 4) != Math.floor(SMSONG.prevCurStep * 16))
 				{
 					trace('rs');
 					resyncVocals();
 				}
-				if (note.y > FlxG.height)
+				if (note.y > FlxG.height || note.dead)
 				{
 					note.active = false;
 					note.visible = false;
@@ -2063,6 +2059,24 @@ trace("isSMSong = " + isSMSong);
 					FlxG.cameras.remove(camPrinter);
 				}
 			}
+		}
+
+		if (FlxG.keys.justPressed.ENTER && startedCountdown && canPause)
+		{
+			persistentUpdate = false;
+			persistentDraw = true;
+			paused = true;
+			if(isSMSong)
+				SMSONG.songActive = false;
+
+			// 1 / 1000 chance for Gitaroo Man easter egg
+			if (FlxG.random.bool(0.1))
+			{
+				// gitaroo man easter egg
+				FlxG.switchState(new GitarooPause());
+			}
+			else
+				openSubState(new PauseSubState(boyfriend.getScreenPosition().x, boyfriend.getScreenPosition().y));
 		}
 	}
 
@@ -2902,7 +2916,7 @@ trace('play');
 	override function stepHit()
 	{
 		super.stepHit();
-		if (FlxG.sound.music.time > Conductor.songPosition + 20 || FlxG.sound.music.time < Conductor.songPosition - 20)
+		if((FlxG.sound.music.time > Conductor.songPosition + 20 || FlxG.sound.music.time < Conductor.songPosition - 20) && !isSMSong)
 		{
 			resyncVocals();
 		}

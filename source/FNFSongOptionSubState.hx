@@ -212,6 +212,8 @@ class FNFSongOptionSubState extends MusicBeatSubstate
 					text.alpha = 0;
 				}
 			}
+			PlayState.SMSONG.velocityCoefficient = PlayState.SONG.speed;
+			PlayState.SMSONG.loadDifficulty(FreeplayState.SMDifficulties[FreeplayState.curDifficulty + 1]);
 			rowText.alpha = 0;
 			scrollSpeedText.alpha = 0;
 		}
