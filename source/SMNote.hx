@@ -53,6 +53,13 @@ class SMNote extends FlxSprite
             #end
         }
 
+        if(noteType == '3')
+        {
+            isSustain = true;
+            sustainEnd = this;
+            return;
+        }
+
         if(useSMTheme)
         {
             frames = Paths.getSparrowAtlas('SM_NOTE_assets', 'shared');
@@ -107,6 +114,8 @@ class SMNote extends FlxSprite
             }
 
             var prefix:String = "gray";
+            if(isSustain)
+                smcolor = prevNote.smcolor;
 
             switch(smcolor)
             {
@@ -172,7 +181,15 @@ class SMNote extends FlxSprite
 
         x = 417 + 160 * direction * 0.7;
 
+        if(isSustain)
+            x -= width / 2;
+
         y = -2000;
+    }
+
+    public function createSustain(rootNote:SMNote):Void 
+    {
+        this.prevNote = rootNote;
     }
 
     override function update(elapsed:Float)

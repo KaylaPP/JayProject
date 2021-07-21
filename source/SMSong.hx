@@ -201,6 +201,7 @@ class SMSong
         // Turn chart into notes on a screen (very exciting)
         var tempstr:String = "";
         var section:Int = 0;
+        var sustains:Array<SMNote> = [];
         for(i in 0...CHART.length)
         {
             if(CHART.charAt(i) != ',' && possibleNotes.indexOf(CHART.charAt(i)) != -1)
@@ -218,12 +219,23 @@ class SMSong
                     if(tempstr.charAt(j) != '0')
                     {
                         var jj:Float = j;
-                        notes.push(new SMNote(this, j % 4, Math.floor(jj / 4), denominator, section, tempstr.charAt(j)));
+                        if(tempstr.charAt(j) != '3')
+                            notes.push(new SMNote(this, j % 4, Math.floor(jj / 4), denominator, section, tempstr.charAt(j)));
+                        else 
+                            sustains.push(new SMNote(this, j % 4, Math.floor(jj / 4), denominator, section, tempstr.charAt(j)));
                     }
                 }
                 tempstr = "";
                 section += 1;
             }
+        }
+
+        // Link sustain notes
+        notes.sort((a, b) -> Std.int(a.getBeat() - b.getBeat()));
+        sustains.sort((a, b) -> Std.int(a.getBeat() - b.getBeat()));
+        for(i in 0...notes.length)
+        {
+            
         }
 
         // create elapsed time for notes (very difficult)
@@ -245,8 +257,6 @@ class SMSong
                 note.strumTime = metadata.OFFSET;
             }
         }
-
-        notes.sort((a, b) -> Std.int(a.getBeat() - b.getBeat()));
     }
 
     private function getFeature(SMString:String, feature:String):String
