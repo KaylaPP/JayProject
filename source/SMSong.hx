@@ -39,6 +39,7 @@ class SMSong
 
     private var timer:Timer;
     public var songActive:Bool = false;
+    public var songLoaded:Bool = false;
 
     public static var possibleDifficulties:Array<String>;
     public static var possibleNotes:String = "01234M";
@@ -156,6 +157,9 @@ class SMSong
 
     public function loadDifficulty(difficulty:String, ?constantScroll:Bool = false):Void
     {
+        if(songLoaded)
+            return;
+        songLoaded = true;
         var NOTES:String = "";
         if(possibleDifficulties.indexOf(difficulty) == -1 || SMString.indexOf(difficulty) == -1)
         {
@@ -220,7 +224,14 @@ class SMSong
                     {
                         var jj:Float = j;
                         if(tempstr.charAt(j) != '0')
-                            notes.push(new SMNote(this, j % 4, Math.floor(jj / 4), denominator, section, tempstr.charAt(j)));
+                        {
+                            var newNote:SMNote = new SMNote(this, j % 4, Math.floor(jj / 4), denominator, section, tempstr.charAt(j));
+                            if(newNote.noteType == '1' || newNote.noteType == '2')
+                                newNote.rootNote = newNote;
+                            if(newNote.noteType == '3')
+                                newNote.sustainEnd = newNote;
+                            notes.push(newNote);
+                        }
                     }
                 }
                 tempstr = "";
@@ -230,23 +241,45 @@ class SMSong
 
         // Link sustain notes
         notes.sort((a, b) -> Std.int(a.getBeat() - b.getBeat()));
-        var ignoreIndices:Array<Int> = [];
-        for(i in 0...notes.length)
+        var ignoreNotes:Array<SMNote> = [];
+        var endWhile:Bool = false;
+        while(!endWhile)
         {
-            if(notes[i].noteType == '2' && ignoreIndices.indexOf(i) < 0)
+            for(i in 0...notes.length)
             {
-                ignoreIndices.push(i);
-                var direction:Int = notes[i].direction;
-                for(j in i...notes.length)
+                if(notes[i].noteType == '2' && ignoreNotes.indexOf(notes[i]) < 0)
                 {
-                    if(notes[j].direction == direction && notes[j].noteType == '3' && ignoreIndices.indexOf(j) < 0)
+                    ignoreNotes.push(notes[i]);
+                    for(j in i...notes.length)
                     {
-                        notes[i].sustainEnd = notes[j];
-                        ignoreIndices.push(j);
-                        notes[j].createSustain(notes[i]);
+                        if(notes[j].direction == notes[i].direction && notes[j].noteType == '3' && ignoreNotes.indexOf(notes[j]) < 0)
+                        {
+                            endWhile = false;
+                            ignoreNotes.push(notes[j]);
+                            notes[i].sustainEnd = notes[j];
+                            notes[j].rootNote = notes[i];
+                            var piece:SMNote = new SMNote(this, notes[i].direction, notes[i].numerator, notes[i].denominator, notes[i].section, '0', notes[i], null, notes[j]);
+                            piece.sustainPiece = piece;
+                            notes.push(piece);
+                            notes[i].sustainPiece = piece;
+                            notes[j].sustainPiece = piece;
+                            notes.sort((a, b) -> Std.int(a.getBeat() - b.getBeat()));
+                            break;
+                        }
+                        endWhile = true;
                     }
+                    break;
                 }
+                endWhile = true;
             }
+        }
+
+        trace(notes.length);
+
+        for(note in notes)
+        {
+            note.generateSprite();
+            trace("w: " + note.width + "   step: " + note.getBeat() + "   type: " + note.noteType);
         }
 
         // create elapsed time for notes (very difficult)

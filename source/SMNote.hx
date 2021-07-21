@@ -26,8 +26,6 @@ class SMNote extends FlxSprite
     public var smcolor:SMNoteColor = GRAY;
     public var strumTime:Float;
     public var noteType:String;
-    public var hasSustain:Bool = false;
-    public var isSustain:Bool = false;
 
     public var rootNote:SMNote;
     public var sustainPiece:SMNote;
@@ -39,7 +37,7 @@ class SMNote extends FlxSprite
 
     private var currentSong:SMSong;
 
-    public function new(currentSong:SMSong, direction:Int, numerator:Int, denominator:Int, section:Int, noteType:String, useSMTheme:Bool = true, prevNote:SMNote = null, sustainEnd:SMNote = null)
+    public function new(currentSong:SMSong, direction:Int, numerator:Int, denominator:Int, section:Int, noteType:String, ?rootNote:SMNote = null, ?sustainPiece:SMNote = null, ?sustainEnd:SMNote = null)
     {
         super();
 
@@ -49,25 +47,49 @@ class SMNote extends FlxSprite
         this.denominator = denominator;
         this.section = section;
         this.noteType = noteType;
+        this.rootNote = rootNote;
+        this.sustainPiece = sustainPiece;
+        this.sustainEnd = sustainEnd;
+        #if debug
         if(numerator == denominator)
         {
-            #if debug
             trace('big bad');
+        }
+        #end
+    }
+
+    override function update(elapsed:Float)
+    {
+        super.update(elapsed);
+        
+        if(y < 50 && !dead && noteType != 'M')
+        {
+            goodHit();
+        }
+    }
+
+    public function goodHit()
+    {
+        if(visible && noteType != '3' && noteType != '0')
+        {
+            #if debug
+            trace('tick ' + getBeat());
             #end
+            FlxG.sound.play(Paths.sound('OPENITG_tick', 'shared'));
         }
+        visible = false;
+        dead = true;
+        this.kill();
+    }
 
-        if(noteType == '3')
-        {
-            isSustain = true;
-            sustainEnd = this;
-        }
-        else 
-        {
-            rootNote = this;
-            isSustain = false;
-        }
+    public function getBeat():Float
+    {
+        return 4.0 * (this.section + (this.numerator / this.denominator));
+    }
 
-        if(useSMTheme && noteType != 'M' && noteType != '3')
+    public function generateSprite(useSMTheme = true):Void
+    {
+        if(useSMTheme && noteType != 'M')
         {
             frames = Paths.getSparrowAtlas('SM_NOTE_assets', 'shared');
             for(i in 0...48)
@@ -75,36 +97,39 @@ class SMNote extends FlxSprite
                 animation.addByPrefix(colors[Math.floor(i / 6)] + ' ' + anim[i % 6], colors[Math.floor(i / 6)] + ' ' + anim[i % 6]);
             }
 
-            if(Math.floor(getBeat() * 48) == Math.ceil(getBeat() * 48))
-                smcolor = GRAY;
-            if(Math.floor(getBeat() * 16) == Math.ceil(getBeat() * 16))
-                smcolor = CYAN;
-            if(Math.floor(getBeat() * 12) == Math.ceil(getBeat() * 12))
-                smcolor = PINK;
-            if(Math.floor(getBeat() * 8) == Math.ceil(getBeat() * 8))
-                smcolor = ORANGE;
-            if(Math.floor(getBeat() * 6) == Math.ceil(getBeat() * 6))
-                smcolor = PURPLE;
-            if(Math.floor(getBeat() * 4) == Math.ceil(getBeat() * 4))
-                smcolor = GREEN;
-            if(Math.floor(getBeat() * 3) == Math.ceil(getBeat() * 3))
-                smcolor = PURPLE;
-            if(Math.floor(getBeat() * 2) == Math.ceil(getBeat() * 2))
-                smcolor = BLUE;
-            if(Math.floor(getBeat()) == Math.ceil(getBeat()))
-                smcolor = RED;
-
-            var suffix:String = "";
-
-            if(isSustain)
+            if(noteType != '3' && noteType != '0')
             {
-                suffix += "hold ";
-                if(sustainEnd == this)
-                    suffix += "end";
-                else
-                    suffix += "piece";
+                if(Math.floor(getBeat() * 48) == Math.ceil(getBeat() * 48))
+                    smcolor = GRAY;
+                if(Math.floor(getBeat() * 16) == Math.ceil(getBeat() * 16))
+                    smcolor = CYAN;
+                if(Math.floor(getBeat() * 12) == Math.ceil(getBeat() * 12))
+                    smcolor = PINK;
+                if(Math.floor(getBeat() * 8) == Math.ceil(getBeat() * 8))
+                    smcolor = ORANGE;
+                if(Math.floor(getBeat() * 6) == Math.ceil(getBeat() * 6))
+                    smcolor = PURPLE;
+                if(Math.floor(getBeat() * 4) == Math.ceil(getBeat() * 4))
+                    smcolor = GREEN;
+                if(Math.floor(getBeat() * 3) == Math.ceil(getBeat() * 3))
+                    smcolor = PURPLE;
+                if(Math.floor(getBeat() * 2) == Math.ceil(getBeat() * 2))
+                    smcolor = BLUE;
+                if(Math.floor(getBeat()) == Math.ceil(getBeat()))
+                    smcolor = RED;
             }
             else
+            {
+                smcolor = rootNote.smcolor;
+            }
+
+
+            var suffix:String = "";
+            if(noteType == '3')
+                suffix = "hold end";
+            else if(noteType == '0')
+                suffix = "hold piece";
+            else if(noteType == '1' || noteType == '2')
             {
                 switch(direction)
                 {
@@ -121,8 +146,6 @@ class SMNote extends FlxSprite
             }
 
             var prefix:String = "gray";
-            if(isSustain)
-                smcolor = prevNote.smcolor;
 
             switch(smcolor)
             {
@@ -148,7 +171,7 @@ class SMNote extends FlxSprite
 
             animation.play(prefix + ' ' + suffix);
         }
-        else if(noteType != '3')
+        else
         {
             frames = Paths.getSparrowAtlas('NOTE_assets', 'shared');
 
@@ -169,107 +192,36 @@ class SMNote extends FlxSprite
             animation.addByPrefix('redhold', 'red hold piece');
             animation.addByPrefix('bluehold', 'blue hold piece');
 
-            switch(direction)
-            {
-                case 0:
-                    animation.play('purpleScroll');
-                case 1:
-                    animation.play('blueScroll');
-                case 2:
-                    animation.play('greenScroll');
-                case 3:
-                    animation.play('redScroll');
-            }
             if(noteType == 'M')
+            {
                 animation.play('bomb');
+            }
+            else 
+            {
+                switch(direction)
+                {
+                    case 0:
+                        animation.play('purpleScroll');
+                    case 1:
+                        animation.play('blueScroll');
+                    case 2:
+                        animation.play('greenScroll');
+                    case 3:
+                        animation.play('redScroll');
+                }
+            }
         }
+        updateHitbox();
         setGraphicSize(Std.int(width * 0.7));
         updateHitbox();
         antialiasing = true;
 
         x = 417 + 160 * direction * 0.7;
 
-        if(isSustain)
-            x -= width / 2;
+        if(noteType == '0' || noteType == '3')
+            x += 35;
 
         y = -2000;
-    }
 
-    public function createSustain(rootNote:SMNote):Void 
-    {
-        this.rootNote = rootNote;
-
-        frames = Paths.getSparrowAtlas('SM_NOTE_assets', 'shared');
-        for(i in 0...48)
-        {
-            animation.addByPrefix(colors[Math.floor(i / 6)] + ' ' + anim[i % 6], colors[Math.floor(i / 6)] + ' ' + anim[i % 6]);
-        }
-
-        smcolor = rootNote.smcolor;
-
-        var suffix:String = "hold end";
-
-        var prefix:String = "gray";
-        if(isSustain)
-            smcolor = rootNote.smcolor;
-
-        switch(smcolor)
-        {
-            default: 
-                prefix = "gray";
-            case RED:
-                prefix = "red";
-            case BLUE:
-                prefix = "blue";
-            case PURPLE:
-                prefix = "purple";
-            case GREEN:
-                prefix = "green";
-            case ORANGE: 
-                prefix = "orange";
-            case PINK: 
-                prefix = "pink";
-            case CYAN: 
-                prefix = "cyan";
-            case GRAY: 
-                prefix = "gray";
-        }
-
-        animation.play(prefix + ' ' + suffix);
-        updateHitbox();
-        setGraphicSize(Std.int(width * 0.7));
-        updateHitbox();
-        antialiasing = true;
-
-        x = 417 + 160 * direction * 0.7;
-    }
-
-    override function update(elapsed:Float)
-    {
-        super.update(elapsed);
-        
-        if(y < 50 && !dead && noteType != 'M')
-        {
-            if(visible)
-            {
-                #if debug
-                trace('tick ' + getBeat());
-                #end
-                FlxG.sound.play(Paths.sound('OPENITG_tick', 'shared'));
-            }
-            visible = false;
-            dead = true;
-            this.kill();
-        }
-    }
-
-    public function goodHit()
-    {
-
-    }
-
-    public function getBeat():Float
-    {
-        return 4.0 * (this.section + (this.numerator / this.denominator));
     }
 }

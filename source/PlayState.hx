@@ -883,20 +883,18 @@ trace("isSMSong = " + isSMSong);
 		if(!isSMSong)
 		{
 			notes = new FlxTypedGroup<Note>();
+			notes.cameras = [camNote];
 			add(notes);
 		}
 		else 
 		{
 			SMSONG.playstate = this;
 			SMNotes = new FlxTypedGroup<SMNote>();
+			SMNotes.cameras = [camNote];
 			add(SMNotes);
 		}
 
 		strumLineNotes.cameras = [camNote];
-		if(!isSMSong)
-			notes.cameras = [camNote];
-		else 
-			SMNotes.cameras = [camNote];
 		healthBar.cameras = [camHUD];
 		healthBarBG.cameras = [camHUD];
 		iconP1.cameras = [camHUD];
