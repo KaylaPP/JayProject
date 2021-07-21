@@ -219,10 +219,8 @@ class SMSong
                     if(tempstr.charAt(j) != '0')
                     {
                         var jj:Float = j;
-                        if(tempstr.charAt(j) != '3')
+                        if(tempstr.charAt(j) != '0')
                             notes.push(new SMNote(this, j % 4, Math.floor(jj / 4), denominator, section, tempstr.charAt(j)));
-                        else 
-                            sustains.push(new SMNote(this, j % 4, Math.floor(jj / 4), denominator, section, tempstr.charAt(j)));
                     }
                 }
                 tempstr = "";
@@ -232,10 +230,23 @@ class SMSong
 
         // Link sustain notes
         notes.sort((a, b) -> Std.int(a.getBeat() - b.getBeat()));
-        sustains.sort((a, b) -> Std.int(a.getBeat() - b.getBeat()));
+        var ignoreIndices:Array<Int> = [];
         for(i in 0...notes.length)
         {
-            
+            if(notes[i].noteType == '2' && ignoreIndices.indexOf(i) < 0)
+            {
+                ignoreIndices.push(i);
+                var direction:Int = notes[i].direction;
+                for(j in i...notes.length)
+                {
+                    if(notes[j].direction == direction && notes[j].noteType == '3' && ignoreIndices.indexOf(j) < 0)
+                    {
+                        notes[i].sustainEnd = notes[j];
+                        ignoreIndices.push(j);
+                        notes[j].createSustain(notes[i]);
+                    }
+                }
+            }
         }
 
         // create elapsed time for notes (very difficult)

@@ -28,8 +28,11 @@ class SMNote extends FlxSprite
     public var noteType:String;
     public var hasSustain:Bool = false;
     public var isSustain:Bool = false;
-    public var prevNote:SMNote;
+
+    public var rootNote:SMNote;
+    public var sustainPiece:SMNote;
     public var sustainEnd:SMNote;
+
     public var dead:Bool = false;
 
     public var startY:Float = 0.0;
@@ -57,10 +60,14 @@ class SMNote extends FlxSprite
         {
             isSustain = true;
             sustainEnd = this;
-            return;
+        }
+        else 
+        {
+            rootNote = this;
+            isSustain = false;
         }
 
-        if(useSMTheme)
+        if(useSMTheme && noteType != 'M' && noteType != '3')
         {
             frames = Paths.getSparrowAtlas('SM_NOTE_assets', 'shared');
             for(i in 0...48)
@@ -141,7 +148,7 @@ class SMNote extends FlxSprite
 
             animation.play(prefix + ' ' + suffix);
         }
-        else 
+        else if(noteType != '3')
         {
             frames = Paths.getSparrowAtlas('NOTE_assets', 'shared');
 
@@ -173,7 +180,8 @@ class SMNote extends FlxSprite
                 case 3:
                     animation.play('redScroll');
             }
-            
+            if(noteType == 'M')
+                animation.play('bomb');
         }
         setGraphicSize(Std.int(width * 0.7));
         updateHitbox();
@@ -189,14 +197,58 @@ class SMNote extends FlxSprite
 
     public function createSustain(rootNote:SMNote):Void 
     {
-        this.prevNote = rootNote;
+        this.rootNote = rootNote;
+
+        frames = Paths.getSparrowAtlas('SM_NOTE_assets', 'shared');
+        for(i in 0...48)
+        {
+            animation.addByPrefix(colors[Math.floor(i / 6)] + ' ' + anim[i % 6], colors[Math.floor(i / 6)] + ' ' + anim[i % 6]);
+        }
+
+        smcolor = rootNote.smcolor;
+
+        var suffix:String = "hold end";
+
+        var prefix:String = "gray";
+        if(isSustain)
+            smcolor = rootNote.smcolor;
+
+        switch(smcolor)
+        {
+            default: 
+                prefix = "gray";
+            case RED:
+                prefix = "red";
+            case BLUE:
+                prefix = "blue";
+            case PURPLE:
+                prefix = "purple";
+            case GREEN:
+                prefix = "green";
+            case ORANGE: 
+                prefix = "orange";
+            case PINK: 
+                prefix = "pink";
+            case CYAN: 
+                prefix = "cyan";
+            case GRAY: 
+                prefix = "gray";
+        }
+
+        animation.play(prefix + ' ' + suffix);
+        updateHitbox();
+        setGraphicSize(Std.int(width * 0.7));
+        updateHitbox();
+        antialiasing = true;
+
+        x = 417 + 160 * direction * 0.7;
     }
 
     override function update(elapsed:Float)
     {
         super.update(elapsed);
         
-        if(y < 50 && !dead)
+        if(y < 50 && !dead && noteType != 'M')
         {
             if(visible)
             {
@@ -216,21 +268,8 @@ class SMNote extends FlxSprite
 
     }
 
-    public function addSustain(sustainEnd:SMNote):Void
-    {
-        this.sustainEnd = sustainEnd;
-    }
-
     public function getBeat():Float
     {
         return 4.0 * (this.section + (this.numerator / this.denominator));
-    }
-
-    public function getColor():SMNoteColor
-    {
-        if(SMSong.truncateFloat(getBeat(), 3) == Math.floor(getBeat()))
-            return RED;
-
-        return GRAY;
     }
 }
