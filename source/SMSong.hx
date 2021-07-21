@@ -215,7 +215,7 @@ class SMSong
                 var denominator:Int = Math.floor(tempstr.length / 4);
                 for(j in 0...tempstr.length)
                 {
-                    if(tempstr.charAt(j) == '1' || tempstr.charAt(j) == '2') // change this pretty please
+                    if(tempstr.charAt(j) != '0')
                     {
                         var jj:Float = j;
                         notes.push(new SMNote(this, j % 4, Math.floor(jj / 4), denominator, section, tempstr.charAt(j)));
@@ -369,9 +369,6 @@ class SMSong
                     }
 
                     curStep = startBeat.BEAT + startBeat.VAL * (elapsedTime - startBeat.TIME) / 60000.0;
-                    trace(curStep);
-                    if(prevCurStep > curStep)
-                        trace('prev is bigger ??????????????');
                 }
             }
         }; 

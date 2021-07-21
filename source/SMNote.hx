@@ -2,13 +2,6 @@ import flixel.FlxG;
 import flixel.FlxSprite;
 import flixel.system.FlxSound;
 
-enum SMNoteType
-{
-    TAP;
-    SUSTAINPIECE;
-    SUSTAINEND;
-}
-
 enum SMNoteColor
 {
     RED;
