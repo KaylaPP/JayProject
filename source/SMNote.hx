@@ -31,11 +31,15 @@ class SMNote extends FlxSprite
     public var sustainPiece:SMNote;
     public var sustainEnd:SMNote;
 
+    public var timeProcessed = false;
+
+    public var wasGoodHit:Bool = false;
     public var dead:Bool = false;
+    public var canBeHit:Bool = false;
 
     public var startY:Float = 0.0;
 
-    private var currentSong:SMSong;
+    public var currentSong:SMSong;
 
     public function new(currentSong:SMSong, direction:Int, numerator:Int, denominator:Int, section:Int, noteType:String, ?rootNote:SMNote = null, ?sustainPiece:SMNote = null, ?sustainEnd:SMNote = null)
     {
@@ -61,28 +65,38 @@ class SMNote extends FlxSprite
     override function update(elapsed:Float)
     {
         super.update(elapsed);
+
+        var noteDiff:Float = Math.abs(strumTime - currentSong.elapsedTime);
+        if(noteDiff < Conductor.safeZoneOffset)
+            canBeHit = true;
+        else 
+            canBeHit = false;
         
-        if((y < 50 && !dead && noteType != 'M') || (y < 100 && !dead && noteType == '3'))
+        if(((y < 50 && !dead && noteType != 'M') || (y < 100 && !dead && noteType == '3')) && !currentSong.mustPressSong)
         {
             goodHit();
         }
     }
 
-    public function goodHit()
+    // returns hit rating
+    public function goodHit():String
     {
-        if(visible && noteType != '3' && noteType != '0')
+        trace('goodhit');
+        if(noteType != '3' && noteType != '0')
         {
             #if debug
             trace('tick ' + getBeat());
             #end
             FlxG.sound.play(Paths.sound('OPENITG_tick', 'shared'));
         }
-        if(visible && noteType != '0')
+        if(noteType != '0')
         {
             visible = false;
             dead = true;
+            wasGoodHit = true;
             this.kill();
         }
+        return 'shit';
     }
 
     public function getBeat():Float

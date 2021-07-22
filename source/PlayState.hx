@@ -1939,36 +1939,27 @@ trace("isSMSong = " + isSMSong);
 			SMNotes.forEachAlive(function(note:SMNote) 
 			{
 				note.y = 50 + note.startY + -1.0 * (SMSONG.curStep) * SMSONG.pixelCoefficient * SMSONG.velocityCoefficient;
+				note.active = true;
 				if((FlxG.sound.music.time > SMSONG.elapsedTime + 20 || FlxG.sound.music.time < SMSONG.elapsedTime - 20) && Math.floor(SMSONG.curStep * 4) != Math.floor(SMSONG.prevCurStep * 16))
 				{
 					trace('rs');
 					resyncVocals();
 				}
-				if (note.y > FlxG.height || note.dead)
+				if(note.noteType == '0' && note.rootNote.dead && !note.sustainEnd.dead)
 				{
-					note.active = false;
-					note.visible = false;
+					note.y = 100;
+					note.setGraphicSize(Math.ceil(note.width), Math.ceil(note.sustainEnd.y - 100));
+					note.updateHitbox();
 				}
-				else
+				else if(note.noteType == '0' && !note.sustainEnd.dead)
 				{
-					note.visible = true;
-					note.active = true;
-					if(note.noteType == '0' && note.rootNote.dead && !note.sustainEnd.dead)
-					{
-						note.y = 100;
-						note.setGraphicSize(Math.ceil(note.width), Math.ceil(note.sustainEnd.y - 100));
-						note.updateHitbox();
-					}
-					else if(note.noteType == '0' && !note.sustainEnd.dead)
-					{
-						note.y = note.rootNote.y + 100;
-						note.setGraphicSize(Math.ceil(note.width), Math.ceil(note.sustainEnd.y - note.rootNote.y - 100));
-						note.updateHitbox();
-					}
-					else if(note.noteType == '0' && note.sustainEnd.dead)
-					{
-						note.kill();
-					}
+					note.y = note.rootNote.y + 100;
+					note.setGraphicSize(Math.ceil(note.width), Math.ceil(note.sustainEnd.y - note.rootNote.y - 100));
+					note.updateHitbox();
+				}
+				else if(note.noteType == '0' && note.sustainEnd.dead)
+				{
+					note.kill();
 				}
 			});
 		}
@@ -1976,7 +1967,7 @@ trace("isSMSong = " + isSMSong);
 
 		if (!inCutscene)
 		{
-			keyShit(elapsed);
+			isSMSong ? smKeyShit(elapsed) : keyShit(elapsed);
 		}
 
 		#if debug
@@ -2504,6 +2495,32 @@ trace(seperatedScore);
 		return note2;
 	}
 
+	private function closerSMNote(note1:SMNote, note2:SMNote):SMNote
+	{
+		if(note1.canBeHit && !note2.canBeHit)
+			return note1;
+		if(!note1.canBeHit && note2.canBeHit)
+			return note2;
+
+		if(note1.noteType == '1' || note1.noteType == '2')
+		{
+			if(note2.noteType == '1' || note2.noteType == '2')
+			{
+				if(Math.abs(SMSONG.elapsedTime - note1.strumTime) < Math.abs(SMSONG.elapsedTime - note2.strumTime))
+					return note1;
+			}
+			if(note2.noteType == 'M')
+			{
+				var noteDiff:Float = Math.abs(note1.strumTime - SMSONG.elapsedTime);
+
+				if(Math.abs(SMSONG.elapsedTime - note1.strumTime) < Math.abs(SMSONG.elapsedTime - note2.strumTime)
+					&& noteDiff < Conductor.safeZoneOffset * 0.8)
+					return note1;
+			}
+		}
+		return note2;
+	}
+
 	private function hasDuplicateNoteData(notes:Array<Note>):Bool
 	{
 		for(i in 0...notes.length)
@@ -2511,6 +2528,22 @@ trace(seperatedScore);
 			for(j in 0...notes.length)
 			{
 				if(i != j && notes[i].noteData == notes[j].noteData && (!notes[i].isSustainNote && !notes[j].isSustainNote))
+				{
+					return true;
+				}
+			}
+		}
+
+		return false;
+	}
+
+	private function hasDuplicateSMNoteData(notes:Array<SMNote>):Bool
+	{
+		for(i in 0...notes.length)
+		{
+			for(j in 0...notes.length)
+			{
+				if(i != j && notes[i].direction == notes[j].direction && ((notes[i].noteType == '1' || notes[i].noteType == '2') && (notes[j].noteType == '1' || notes[j].noteType == '2')))
 				{
 					return true;
 				}
@@ -2723,8 +2756,8 @@ trace(seperatedScore);
 					{
 						spr.animation.play('pressed');
 						#if debug
-trace('play');
-#end
+						trace('play');
+						#end
 					}
 					if (upR || holdArray[2].absolutelyFalse())
 					{
@@ -2844,6 +2877,237 @@ trace('play');
 			note.destroy();
 		}
 	}
+
+	private function smKeyShit(elapsed:Float):Void
+	{
+		// HOLDING
+		var up = controls.UP;
+		var right = controls.RIGHT;
+		var down = controls.DOWN;
+		var left = controls.LEFT;
+
+		var upP = controls.UP_P;
+		var rightP = controls.RIGHT_P;
+		var downP = controls.DOWN_P;
+		var leftP = controls.LEFT_P;
+
+		var upR = controls.UP_R;
+		var rightR = controls.RIGHT_R;
+		var downR = controls.DOWN_R;
+		var leftR = controls.LEFT_R;
+		
+		var controlArray:Array<Bool> = [leftP, downP, upP, rightP];
+		var bombArray:Array<Bool> = [left, down, up, right];
+		var decayTime:Float = 0.3;
+		if(left)
+			holdArray[0].setfBool(1.0);
+		else
+			holdArray[0].subFromfBool(elapsed / decayTime);
+
+		if(down)
+			holdArray[1].setfBool(1.0);
+		else
+			holdArray[1].subFromfBool(elapsed / decayTime);
+
+		if(up)
+			holdArray[2].setfBool(1.0);
+		else
+			holdArray[2].subFromfBool(elapsed / decayTime);
+
+		if(right)
+			holdArray[3].setfBool(1.0);
+		else
+			holdArray[3].subFromfBool(elapsed / decayTime);
+
+		var anyGoodHits:Bool = false;
+
+		// FlxG.watch.addQuick('asdfa', upP);
+		if (!boyfriend.stunned && generatedMusic && !isSMSong)
+		{
+			repPresses++;
+			boyfriend.holdTimer = 0;
+
+			var possibleNotes:Array<SMNote> = [];
+
+			SMNotes.forEachAlive(function(daNote:SMNote)
+			{
+				if (daNote.currentSong.mustPressSong && !daNote.dead && daNote.canBeHit)
+				{
+					possibleNotes.push(daNote);
+				}
+			});
+
+			if(possibleNotes.length == 0)
+			{
+				trace('returned from key func');
+				return;
+			}
+
+			possibleNotes.sort((a, b) -> Std.int(a.strumTime - b.strumTime));
+					
+			while(hasDuplicateSMNoteData(possibleNotes))
+			{
+				for(i in 0...possibleNotes.length)
+				{
+					var doBreak:Bool = false;
+					for(j in 0...possibleNotes.length)
+					{
+						if(i != j && possibleNotes[i].direction == possibleNotes[j].direction && (possibleNotes[i].noteType == '1' || possibleNotes[i].noteType == '2') && (possibleNotes[j].noteType == '1' || possibleNotes[j].noteType == '2'))
+						{
+							if(closerSMNote(possibleNotes[i], possibleNotes[j]) == possibleNotes[i] && !doBreak)
+							{
+								possibleNotes.remove(possibleNotes[j]);
+								doBreak = true;
+							}
+							else if(!doBreak)
+							{
+								possibleNotes.remove(possibleNotes[i]);
+								doBreak = true;
+							}
+						}
+						if(doBreak) break;
+					}
+					if(doBreak) break;
+				}
+			}
+
+			for(note in possibleNotes)
+			{
+				if(note.noteType == '1' || note.noteType == '2')
+				{
+					if(controlArray[note.direction])
+					{
+						anyGoodHits = true;
+						note.goodHit();
+					}
+				}
+				else if(note.noteType == 'M')
+				{
+					if(bombArray[note.direction])
+					{
+						anyGoodHits = true;
+						note.goodHit();
+					}
+				}
+				else if(note.noteType == '0' || note.noteType == '3')
+				{
+					if(holdArray[note.direction].somewhatTrue() && note.rootNote.wasGoodHit)
+					{
+						if(note == note.sustainEnd)
+						{
+							songScore += 175;
+							health += maxHealth * 0.025;
+						}
+						anyGoodHits = true;
+						note.goodHit();
+					}
+					if(holdArray[note.direction].absolutelyFalse() && note.rootNote.wasGoodHit)
+					{
+						susMisses[note.direction] = true;
+						note.dead = true;
+					}
+					if(note.rootNote.dead)
+					{
+						note.dead = true;
+					}
+				}
+			}
+		}
+
+		for(i in 0...susMisses.length)
+		{
+			if(susMisses[i])
+			{
+				susMisses[i] = false;
+
+				// change health deduction later?
+				health -= maxHealth * 0.05;
+				if (combo > 5 && gf.animOffsets.exists('sad'))
+				{
+					gf.playAnim('sad');
+				}
+				FlxG.sound.play(Paths.soundRandom('missnote', 1, 3), FlxG.random.float(0.1, 0.2));
+				switch (i)
+				{
+					case 0:
+						boyfriend.playAnim('singLEFTmiss', true);
+					case 1:
+						boyfriend.playAnim('singDOWNmiss', true);
+					case 2:
+						boyfriend.playAnim('singUPmiss', true);
+					case 3:
+						boyfriend.playAnim('singRIGHTmiss', true);
+				}
+			}
+		}
+
+		var anyHolds:Bool = false;
+		for(fb in holdArray)
+		{
+			if(anyGoodHits || fb.somewhatTrue())
+				anyHolds = true;
+		}
+
+		if (!anyHolds)
+		{
+			boyfriend.playAnim('idle');
+		}
+
+		playerStrums.forEach(function(spr:FlxSprite)
+		{
+			switch (spr.ID)
+			{
+				case 2:
+					if (upP && spr.animation.curAnim.name != 'confirm')
+					{
+						spr.animation.play('pressed');
+						#if debug
+						trace('play');
+						#end
+					}
+					if (upR || holdArray[2].absolutelyFalse())
+					{
+						spr.animation.play('static');
+						repReleases++;
+					}
+				
+				case 3:
+					if (rightP && spr.animation.curAnim.name != 'confirm')
+						spr.animation.play('pressed');
+					if (rightR || holdArray[3].absolutelyFalse())
+					{
+						spr.animation.play('static');
+						repReleases++;
+					}
+				case 1:
+					if (downP && spr.animation.curAnim.name != 'confirm')
+						spr.animation.play('pressed');
+					if (downR || holdArray[1].absolutelyFalse())
+					{
+						spr.animation.play('static');
+						repReleases++;
+					}
+				case 0:
+					if (leftP && spr.animation.curAnim.name != 'confirm')
+						spr.animation.play('pressed');
+					if (leftR || holdArray[0].absolutelyFalse())
+					{
+						spr.animation.play('static');
+						repReleases++;
+					}
+			}
+			
+			if (spr.animation.curAnim.name == 'confirm' && !curStage.startsWith('school'))
+			{
+				spr.centerOffsets();
+				spr.offset.x -= 13;
+				spr.offset.y -= 13;
+			}
+			else
+				spr.centerOffsets();
+		});
+	}
+
 		
 
 	var fastCarCanDrive:Bool = true;

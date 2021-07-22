@@ -44,6 +44,8 @@ class SMSong
     public static var possibleDifficulties:Array<String>;
     public static var possibleNotes:String = "01234M";
 
+    public var mustPressSong:Bool = true;
+
     public var playstate:PlayState;
 
     public function new(songFileName:String)
@@ -94,7 +96,7 @@ class SMSong
 
         for(i in 0...metadata.BPMS.length - 1)
         {
-            metadata.BPMS[i + 1].TIME = 60000.0 * (metadata.BPMS[i + 1].BEAT - metadata.BPMS[i].BEAT) / (metadata.BPMS[i].VAL) + metadata.BPMS[i].TIME;
+            metadata.BPMS[i + 1].TIME = 60000.0 * (metadata.BPMS[i + 1].BEAT - metadata.BPMS[i].BEAT) / (metadata.BPMS[i].VAL) + metadata.BPMS[i].TIME + metadata.OFFSET;
         }
         // remove duplicates
         while(false)
@@ -274,17 +276,30 @@ class SMSong
             }
         }
 
-        trace(notes.length);
-
         for(note in notes)
         {
             note.generateSprite();
-            trace("w: " + note.width + "   step: " + note.getBeat() + "   type: " + note.noteType);
         }
 
         // create elapsed time for notes (very difficult)
         // 120 bpm -> 1/120 mpb -> 1/2 spb -> 500 mspb
         // bpm -> 1/bpm -> 60/bpm -> 60*1000/bpm = mspb
+        for(i in 0...metadata.BPMS.length - 1)
+        {
+            for(note in notes)
+            {
+                if(note.getBeat() >= metadata.BPMS[i].BEAT && note.getBeat() < metadata.BPMS[i + 1].BEAT && !note.timeProcessed)
+                {
+                    note.strumTime += metadata.BPMS[i].TIME + 60000.0 * note.getBeat() / metadata.BPMS[i].VAL;
+                    note.timeProcessed = true;
+                }
+            }
+        }
+
+        /*for(i in 0...metadata.BPMS.length - 1)
+        {
+            metadata.BPMS[i + 1].TIME = 60000.0 * (metadata.BPMS[i + 1].BEAT - metadata.BPMS[i].BEAT) / (metadata.BPMS[i].VAL) + metadata.BPMS[i].TIME;
+        }*/
 
         // Place notes on the screen
         if(constantScroll)
