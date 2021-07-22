@@ -80,7 +80,7 @@ class FNFSongOptionSubState extends MusicBeatSubstate
 					rowOptions[i].push(scrollSpeedText);
 				case 2:
 					var SMExperiment:FlxText = new FlxText(37, 25 + i * 50).setFormat(Paths.font("vcr.ttf"), 32, FlxColor.WHITE, RIGHT);
-					SMExperiment.text = "EXPERIMENTAL - Play Stepmania version";
+					SMExperiment.text = "EXPERIMENTAL - Play Stepmania version (doesn't work yet)";
 					SMExperiment.updateHitbox();
 					add(SMExperiment);
 					rowOptions[i].push(SMExperiment);
