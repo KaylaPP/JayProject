@@ -26,6 +26,7 @@ class FreeplayState extends MusicBeatState
 	public static var optionSubstateClosed:Bool = false;
 	public static var loadSMSong:Bool = false;
 	public static var SMDifficulties:Array<String> = ['Novice', 'Easy', 'Medium', 'Hard', 'Challenge', 'Edit'];
+	public static var SMGalaxyDifficulties:Array<String> = ['Easy', 'Medium', 'Hard', 'Edit'];
 
 	var songs:Array<SongMetadata> = [];
 

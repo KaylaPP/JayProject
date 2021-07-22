@@ -213,7 +213,10 @@ class FNFSongOptionSubState extends MusicBeatSubstate
 				}
 			}
 			PlayState.SMSONG.velocityCoefficient = PlayState.SONG.speed;
-			PlayState.SMSONG.loadDifficulty(FreeplayState.SMDifficulties[FreeplayState.curDifficulty + 1]);
+			if(PlayState.SMSONG.metadata.TITLE.toLowerCase().indexOf('galaxy') == -1)
+				PlayState.SMSONG.loadDifficulty(FreeplayState.SMDifficulties[FreeplayState.curDifficulty + 1]);
+			else 
+				PlayState.SMSONG.loadDifficulty(FreeplayState.SMGalaxyDifficulties[FreeplayState.curDifficulty - 2]);
 			rowText.alpha = 0;
 			scrollSpeedText.alpha = 0;
 		}

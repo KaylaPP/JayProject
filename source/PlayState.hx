@@ -1939,27 +1939,36 @@ trace("isSMSong = " + isSMSong);
 			SMNotes.forEachAlive(function(note:SMNote) 
 			{
 				note.y = 50 + note.startY + -1.0 * (SMSONG.curStep) * SMSONG.pixelCoefficient * SMSONG.velocityCoefficient;
-				note.active = true;
 				if((FlxG.sound.music.time > SMSONG.elapsedTime + 20 || FlxG.sound.music.time < SMSONG.elapsedTime - 20) && Math.floor(SMSONG.curStep * 4) != Math.floor(SMSONG.prevCurStep * 16))
 				{
 					trace('rs');
 					resyncVocals();
 				}
-				if(note.noteType == '0' && note.rootNote.dead && !note.sustainEnd.dead)
+				if(note.y < FlxG.height)
 				{
-					note.y = 100;
-					note.setGraphicSize(Math.ceil(note.width), Math.ceil(note.sustainEnd.y - 100));
-					note.updateHitbox();
+					note.active = true;
+					note.visible = true;
+					if(note.noteType == '0' && note.rootNote.dead && !note.sustainEnd.dead)
+					{
+						note.y = 100;
+						note.setGraphicSize(Math.ceil(note.width), Math.ceil(note.sustainEnd.y - 100));
+						note.updateHitbox();
+					}
+					else if(note.noteType == '0' && !note.sustainEnd.dead)
+					{
+						note.y = note.rootNote.y + 100;
+						note.setGraphicSize(Math.ceil(note.width), Math.ceil(note.sustainEnd.y - note.rootNote.y - 100));
+						note.updateHitbox();
+					}
+					else if(note.noteType == '0' && note.sustainEnd.dead)
+					{
+						note.kill();
+					}
 				}
-				else if(note.noteType == '0' && !note.sustainEnd.dead)
+				else 
 				{
-					note.y = note.rootNote.y + 100;
-					note.setGraphicSize(Math.ceil(note.width), Math.ceil(note.sustainEnd.y - note.rootNote.y - 100));
-					note.updateHitbox();
-				}
-				else if(note.noteType == '0' && note.sustainEnd.dead)
-				{
-					note.kill();
+					note.active = false;
+					note.visible = false;
 				}
 			});
 		}
@@ -2094,7 +2103,6 @@ trace("isSMSong = " + isSMSong);
 
 	function endSong():Void
 	{
-		isSMSong = false;
 		holdArray = [new FuzzyBool(), new FuzzyBool(), new FuzzyBool(), new FuzzyBool()];
 		susMisses = [false, false, false, false];
 		ignoreDirection = [false, false, false, false];
@@ -2597,7 +2605,7 @@ trace(seperatedScore);
 		var anyGoodHits:Bool = false;
 
 		// FlxG.watch.addQuick('asdfa', upP);
-		if (!boyfriend.stunned && generatedMusic && !isSMSong)
+		if (!boyfriend.stunned && generatedMusic)
 		{
 			repPresses++;
 			boyfriend.holdTimer = 0;
@@ -2922,46 +2930,40 @@ trace(seperatedScore);
 		var anyGoodHits:Bool = false;
 
 		// FlxG.watch.addQuick('asdfa', upP);
-		if (!boyfriend.stunned && generatedMusic && !isSMSong)
+		if (!boyfriend.stunned && generatedMusic)
 		{
 			repPresses++;
 			boyfriend.holdTimer = 0;
 
-			var possibleNotes:Array<SMNote> = [];
+			var possibleSMNotes:Array<SMNote> = [];
 
 			SMNotes.forEachAlive(function(daNote:SMNote)
 			{
-				if (daNote.currentSong.mustPressSong && !daNote.dead && daNote.canBeHit)
+				if(daNote.currentSong.mustPressSong && !daNote.dead && daNote.canBeHit && daNote.timeProcessed)
 				{
-					possibleNotes.push(daNote);
+					possibleSMNotes.push(daNote);
 				}
 			});
 
-			if(possibleNotes.length == 0)
-			{
-				trace('returned from key func');
-				return;
-			}
-
-			possibleNotes.sort((a, b) -> Std.int(a.strumTime - b.strumTime));
+			possibleSMNotes.sort((a, b) -> Std.int(a.strumTime - b.strumTime));
 					
-			while(hasDuplicateSMNoteData(possibleNotes))
+			while(hasDuplicateSMNoteData(possibleSMNotes))
 			{
-				for(i in 0...possibleNotes.length)
+				for(i in 0...possibleSMNotes.length)
 				{
 					var doBreak:Bool = false;
-					for(j in 0...possibleNotes.length)
+					for(j in 0...possibleSMNotes.length)
 					{
-						if(i != j && possibleNotes[i].direction == possibleNotes[j].direction && (possibleNotes[i].noteType == '1' || possibleNotes[i].noteType == '2') && (possibleNotes[j].noteType == '1' || possibleNotes[j].noteType == '2'))
+						if(i != j && possibleSMNotes[i].direction == possibleSMNotes[j].direction && (possibleSMNotes[i].noteType == '1' || possibleSMNotes[i].noteType == '2') && (possibleSMNotes[j].noteType == '1' || possibleSMNotes[j].noteType == '2'))
 						{
-							if(closerSMNote(possibleNotes[i], possibleNotes[j]) == possibleNotes[i] && !doBreak)
+							if(closerSMNote(possibleSMNotes[i], possibleSMNotes[j]) == possibleSMNotes[i] && !doBreak)
 							{
-								possibleNotes.remove(possibleNotes[j]);
+								possibleSMNotes.remove(possibleSMNotes[j]);
 								doBreak = true;
 							}
 							else if(!doBreak)
 							{
-								possibleNotes.remove(possibleNotes[i]);
+								possibleSMNotes.remove(possibleSMNotes[i]);
 								doBreak = true;
 							}
 						}
@@ -2971,7 +2973,7 @@ trace(seperatedScore);
 				}
 			}
 
-			for(note in possibleNotes)
+			for(note in possibleSMNotes)
 			{
 				if(note.noteType == '1' || note.noteType == '2')
 				{
@@ -3006,7 +3008,7 @@ trace(seperatedScore);
 						susMisses[note.direction] = true;
 						note.dead = true;
 					}
-					if(note.rootNote.dead)
+					if(note.rootNote.dead && !note.rootNote.wasGoodHit)
 					{
 						note.dead = true;
 					}

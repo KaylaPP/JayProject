@@ -66,11 +66,48 @@ class SMNote extends FlxSprite
     {
         super.update(elapsed);
 
+        if(noteType == '0' && sustainEnd.wasGoodHit)
+        {
+            visible = false;
+            dead = true;
+            wasGoodHit = true;
+            this.kill();
+        }
+
         var noteDiff:Float = Math.abs(strumTime - currentSong.elapsedTime);
-        if(noteDiff < Conductor.safeZoneOffset)
+        if(noteDiff < Conductor.safeZoneOffset && (noteType == '1' || noteType == '2'))
+        {
             canBeHit = true;
+        }
+        else if(noteDiff < 25 && noteType == 'M')
+        {
+            canBeHit = true;
+        }
+        else if(rootNote != null && rootNote.wasGoodHit && noteType == '0')
+        {
+            canBeHit = true;
+        }
+        else if(y <= 100 && noteType == '3')
+        {
+            canBeHit = true;
+        }
         else 
+        {
             canBeHit = false;
+        }
+
+        if((noteType == '0' || noteType == '3') && rootNote.wasGoodHit)
+        {
+            color = 0xFFFFFF -
+                0x10000 * Std.int(0xE5 * Math.abs(1.0 - PlayState.holdArray[direction].getNormalizedfBool())) -
+                0x100 * Std.int(0xE5 * Math.abs(1.0 - PlayState.holdArray[direction].getNormalizedfBool())) -
+                Std.int(0xE5 * Math.abs(1.0 - PlayState.holdArray[direction].getNormalizedfBool()));
+        }
+        if(dead)
+        {
+            if (color != 0x1A1A1A)
+				color = 0x1A1A1A;
+        }
         
         if(((y < 50 && !dead && noteType != 'M') || (y < 100 && !dead && noteType == '3')) && !currentSong.mustPressSong)
         {
@@ -81,13 +118,15 @@ class SMNote extends FlxSprite
     // returns hit rating
     public function goodHit():String
     {
+        var noteDiff:Float = Math.abs(strumTime - currentSong.elapsedTime);
+        var rating:String = 'shit';
         trace('goodhit');
         if(noteType != '3' && noteType != '0')
         {
             #if debug
             trace('tick ' + getBeat());
-            #end
             FlxG.sound.play(Paths.sound('OPENITG_tick', 'shared'));
+            #end
         }
         if(noteType != '0')
         {
@@ -96,7 +135,44 @@ class SMNote extends FlxSprite
             wasGoodHit = true;
             this.kill();
         }
-        return 'shit';
+        if(noteType == '3')
+        {
+            sustainPiece.visible = false;
+            sustainPiece.dead = true;
+            sustainPiece.wasGoodHit = true;
+            sustainPiece.kill();
+        }
+        if(noteType == '1' || noteType == '2')
+        {
+            if(noteDiff > 105)
+                rating = "shit";
+            else if(noteDiff < -105)
+                rating = "shit";
+            else if(noteDiff > 80)
+                rating = "bad";
+            else if(noteDiff < -80)
+                rating = "bad";
+            else if(noteDiff > 55)
+                rating = "good";
+            else if(noteDiff < -55)
+                rating = "good";
+            else if(noteDiff > 30)
+                rating = "cool";
+            else if(noteDiff < -30)
+                rating = "cool";
+            else
+                rating = "sick";
+        }
+        else if(noteType == 'M')
+        {
+            rating = 'boom';
+        }
+        else 
+        {
+            rating = 'sus';
+        }
+        trace(rating);
+        return rating;
     }
 
     public function getBeat():Float

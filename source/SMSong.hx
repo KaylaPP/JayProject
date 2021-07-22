@@ -284,18 +284,35 @@ class SMSong
         // create elapsed time for notes (very difficult)
         // 120 bpm -> 1/120 mpb -> 1/2 spb -> 500 mspb
         // bpm -> 1/bpm -> 60/bpm -> 60*1000/bpm = mspb
-        for(i in 0...metadata.BPMS.length - 1)
+        if(metadata.BPMS.length > 1)
         {
-            for(note in notes)
+            for(i in 0...metadata.BPMS.length)
             {
-                if(note.getBeat() >= metadata.BPMS[i].BEAT && note.getBeat() < metadata.BPMS[i + 1].BEAT && !note.timeProcessed)
+                for(note in notes)
                 {
-                    note.strumTime += metadata.BPMS[i].TIME + 60000.0 * note.getBeat() / metadata.BPMS[i].VAL;
-                    note.timeProcessed = true;
+                    if(note.getBeat() >= metadata.BPMS[i].BEAT && (i == metadata.BPMS.length - 1 || note.getBeat() < metadata.BPMS[i + 1].BEAT) && !note.timeProcessed)
+                    {
+                        note.strumTime += metadata.BPMS[i].TIME + 60000.0 * (note.getBeat() - metadata.BPMS[i].BEAT) / metadata.BPMS[i].VAL;
+                        note.timeProcessed = true;
+                        #if debug
+                        if(i > 0)
+                        {
+                            trace(i);
+                            trace(note.strumTime);
+                        }
+                        #end
+                    }
                 }
             }
         }
-
+        else 
+        {
+            for(note in notes)
+            {
+                note.strumTime += metadata.BPMS[0].TIME + 60000.0 * note.getBeat() / metadata.BPMS[0].VAL;
+                note.timeProcessed = true;
+            }
+        }
         /*for(i in 0...metadata.BPMS.length - 1)
         {
             metadata.BPMS[i + 1].TIME = 60000.0 * (metadata.BPMS[i + 1].BEAT - metadata.BPMS[i].BEAT) / (metadata.BPMS[i].VAL) + metadata.BPMS[i].TIME;
@@ -313,7 +330,7 @@ class SMSong
             {
                 var note = notes[i];
                 note.startY += pixelCoefficient * velocityCoefficient * note.getBeat();
-                note.strumTime = metadata.OFFSET;
+                note.strumTime += metadata.OFFSET;
             }
         }
     }
