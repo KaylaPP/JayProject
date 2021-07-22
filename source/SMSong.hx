@@ -297,7 +297,7 @@ class SMSong
             for(i in 0...notes.length)
             {
                 var note = notes[i];
-                note.startY = pixelCoefficient * velocityCoefficient * note.getBeat();
+                note.startY += pixelCoefficient * velocityCoefficient * note.getBeat();
                 note.strumTime = metadata.OFFSET;
             }
         }

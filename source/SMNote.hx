@@ -62,7 +62,7 @@ class SMNote extends FlxSprite
     {
         super.update(elapsed);
         
-        if(y < 50 && !dead && noteType != 'M')
+        if((y < 50 && !dead && noteType != 'M') || (y < 100 && !dead && noteType == '3'))
         {
             goodHit();
         }
@@ -77,9 +77,12 @@ class SMNote extends FlxSprite
             #end
             FlxG.sound.play(Paths.sound('OPENITG_tick', 'shared'));
         }
-        visible = false;
-        dead = true;
-        this.kill();
+        if(visible && noteType != '0')
+        {
+            visible = false;
+            dead = true;
+            this.kill();
+        }
     }
 
     public function getBeat():Float
@@ -219,7 +222,18 @@ class SMNote extends FlxSprite
         x = 417 + 160 * direction * 0.7;
 
         if(noteType == '0' || noteType == '3')
+        {
             x += 35;
+        }
+        if(noteType == '0')
+        {
+            flipY = true;
+            startY += rootNote.height / 2;
+        }
+        if(noteType == '3')
+        {
+            startY += rootNote.height - height;
+        }
 
         y = -2000;
 

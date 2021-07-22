@@ -1194,12 +1194,31 @@ trace("isSMSong = " + isSMSong);
 
 		if (!paused)
 		{
-			FlxG.sound.playMusic(Paths.inst(PlayState.SONG.song), 1, false);
 			if(isSMSong)
 			{
+				var addArray:Array<SMNote> = [];
+				for(note in SMSONG.notes)
+				{
+					if(note.noteType == '0' || note.noteType == '3')
+					{
+						addArray.push(note);
+					}
+				}
+				for(note in SMSONG.notes)
+				{
+					if(addArray.indexOf(note) == -1)
+					{
+						addArray.push(note);
+					}
+				}
+				for(note in addArray)
+				{
+					SMNotes.add(note);
+				}
 				SMSONG.startSong();
 				SMSONG.songActive = true;
 			}
+			FlxG.sound.playMusic(Paths.inst(PlayState.SONG.song), 1, false);
 		}
 		
 		FlxG.sound.music.onComplete = endSong;
@@ -1832,18 +1851,6 @@ trace("isSMSong = " + isSMSong);
 				unspawnNotes.splice(index, 1);
 			}
 		}
-		
-		if(SMSONG.notes[0] != null && isSMSong)
-		{
-			if(SMSONG.notes[0].y < FlxG.height)
-			{
-				var dunceSMNote:SMNote = SMSONG.notes[0];
-				SMNotes.add(dunceSMNote);
-
-				var index:Int = SMSONG.notes.indexOf(dunceSMNote);
-				SMSONG.notes.splice(index, 1);
-			}
-		}
 
 		if (generatedMusic && !isSMSong)
 		{
@@ -1946,6 +1953,22 @@ trace("isSMSong = " + isSMSong);
 				{
 					note.visible = true;
 					note.active = true;
+					if(note.noteType == '0' && note.rootNote.dead && !note.sustainEnd.dead)
+					{
+						note.y = 100;
+						note.setGraphicSize(Math.ceil(note.width), Math.ceil(note.sustainEnd.y - 100));
+						note.updateHitbox();
+					}
+					else if(note.noteType == '0' && !note.sustainEnd.dead)
+					{
+						note.y = note.rootNote.y + 100;
+						note.setGraphicSize(Math.ceil(note.width), Math.ceil(note.sustainEnd.y - note.rootNote.y - 100));
+						note.updateHitbox();
+					}
+					else if(note.noteType == '0' && note.sustainEnd.dead)
+					{
+						note.kill();
+					}
 				}
 			});
 		}
