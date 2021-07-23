@@ -138,7 +138,7 @@ class SMNote extends FlxSprite
             goodHit();
         }
 
-        if(y < height && noteDiff > Conductor.safeZoneOffset && (noteType == '1' || noteType == '2' || noteType == '3'))
+        if(y < 0 - height && dead && (noteType == '1' || noteType == '2' || noteType == '3'))
         {
             visible = false;
             kill();
@@ -148,6 +148,7 @@ class SMNote extends FlxSprite
     // returns hit rating
     public function goodHit():String
     {
+        trace('GOOD JARB');
         var noteDiff:Float = Math.abs(strumTime - currentSong.elapsedTime);
         var rating:String = 'shit';
         
@@ -185,7 +186,7 @@ class SMNote extends FlxSprite
         {
             #if debug
             trace('tick ' + getBeat());
-            FlxG.sound.play(Paths.sound('OPENITG_tick', 'shared'));
+            //FlxG.sound.play(Paths.sound('OPENITG_tick', 'shared'));
             #end
         }
         if(rating != 'sus')
@@ -385,4 +386,13 @@ class SMNote extends FlxSprite
         y = -2000;
 
     }
+
+    #if debug
+    override public function kill():Void
+    {
+        trace('got killed');
+        alive = false;
+        exists = false;
+    }
+    #end
 }
