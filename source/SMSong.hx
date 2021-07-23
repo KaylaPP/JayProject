@@ -46,6 +46,8 @@ class SMSong
 
     public var mustPressSong:Bool = true;
 
+    public var hitIDs:Array<Int> = [];
+
     public var playstate:PlayState;
 
     public function new(songFileName:String)
@@ -333,6 +335,26 @@ class SMSong
                 note.strumTime += metadata.OFFSET;
             }
         }
+
+        var jumpID:Int = -1;
+        var usedIDs:Array<Int> = [-1];
+        // Associate jumps
+        for(note1 in notes)
+        {
+            for(note2 in notes)
+            {
+                if(note1 != note2 && PlayState.NearlyEquals(note1.getBeat(), note2.getBeat(), 0.0005) && (note1.noteType == '1' || note1.noteType == '2') && (note2.noteType == '1' || note2.noteType == '2'))
+                {
+                    while(usedIDs.indexOf(jumpID) != -1)
+                    {
+                        jumpID++;
+                    }
+                    note1.jumpID = jumpID;
+                    note2.jumpID = jumpID;
+                    usedIDs.push(jumpID);
+                }
+            }
+        }
     }
 
     private function getFeature(SMString:String, feature:String):String
@@ -458,8 +480,16 @@ class SMSong
                 }
             }
         }; 
+    }
 
-        
+    public function partOfJump(note1:SMNote):Bool
+    {
+        for(note2 in notes)
+        {
+            if(PlayState.NearlyEquals(note1.getBeat(), note2.getBeat(), 0.0005))
+                return true;
+        }
+        return false;
     }
 
     public static function truncateFloat( number : Float, precision : Int): Float 
@@ -477,5 +507,11 @@ class SMSong
             str = str.substr(0, str.indexOf(pattern)) + newpattern + str.substr(str.indexOf(pattern) + pattern.length);
         }
         return str;
+    }
+
+    public function getSMBeatsSortedAsMinToMax(beats:Array<SMBeat>):Array<SMBeat>
+    {
+        beats.sort((a, b) -> Std.int(a.VAL - b.VAL));
+        return beats;
     }
 }

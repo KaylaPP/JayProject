@@ -290,7 +290,7 @@ class Note extends FlxSprite
 				case 1:
 					rating = "boom";
 				}
-				FlxG.watch.addQuick("Note" + this.ID, rating);
+				//FlxG.watch.addQuick("Note" + this.ID, rating);
 			}
 
 			if(strumTime < Conductor.songPosition - (Conductor.safeZoneOffset * 1.0) && !wasGoodHit)

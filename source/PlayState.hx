@@ -83,7 +83,7 @@ class PlayState extends MusicBeatState
 
 	private var dad:Character;
 	private var gf:Character;
-	private var boyfriend:Boyfriend;
+	public var boyfriend:Boyfriend;
 
 	private var notes:FlxTypedGroup<Note>;
 	private var unspawnNotes:Array<Note> = [];
@@ -98,7 +98,7 @@ class PlayState extends MusicBeatState
 	private static var prevCamFollow:FlxObject;
 
 	private var strumLineNotes:FlxTypedGroup<FlxSprite>;
-	private var playerStrums:FlxTypedGroup<FlxSprite>;
+	public var playerStrums:FlxTypedGroup<FlxSprite>;
 
 	private var camZooming:Bool = false;
 	private var curSong:String = "";
@@ -2191,275 +2191,539 @@ trace("isSMSong = " + isSMSong);
 	var currentTimingShown:FlxText = null;
 	#end
 	private function popUpScore(daNote:Note):Void
+	{
+		var noteDiff:Float = Math.abs(daNote.strumTime - Conductor.songPosition);
+		// boyfriend.playAnim('hey');
+		vocals.volume = 1;
+
+		var placement:String = Std.string(combo);
+
+		var coolText:FlxText = new FlxText(0, 0, 0, placement, 32);
+		coolText.screenCenter();
+		coolText.x = FlxG.width * 0.55;
+		coolText.y -= 350;
+		coolText.cameras = [camNote];
+		//
+
+		var rating:FlxSprite = new FlxSprite();
+		var score:Float = 350;
+
+		var daRating = daNote.rating;
+
+		var healthCoefficient:Float = daNote.startsSustain ? 0.5 : 1.0;
+		var addHealth:Float = 0;
+		switch(daRating)
 		{
-			var noteDiff:Float = Math.abs(daNote.strumTime - Conductor.songPosition);
-			// boyfriend.playAnim('hey');
-			vocals.volume = 1;
-	
-			var placement:String = Std.string(combo);
-	
-			var coolText:FlxText = new FlxText(0, 0, 0, placement, 32);
-			coolText.screenCenter();
-			coolText.x = FlxG.width * 0.55;
-			coolText.y -= 350;
-			coolText.cameras = [camNote];
-			//
-	
-			var rating:FlxSprite = new FlxSprite();
-			var score:Float = 350;
-
-			var daRating = daNote.rating;
-
-			var healthCoefficient:Float = daNote.startsSustain ? 0.5 : 1.0;
-			var addHealth:Float = 0;
-			switch(daRating)
-			{
-				case 'shit':
-					combo = 0;
-					score = -200 * healthCoefficient;
-					addHealth -= maxHealth * 0.075;
-					ss = false;
-					shits++;
-				case 'bad':
-					daRating = 'bad';
-					score = -100 * healthCoefficient;
-					addHealth -= maxHealth * 0.025;
-					combo = 0;
-					ss = false;
-					bads++;
-				case 'good':
-					daRating = 'good';
-					score = 200 * healthCoefficient;
-					addHealth += maxHealth * healthCoefficient * 0.01;
-					ss = false;
-					goods++;
-				case 'cool':
-					daRating = 'cool';
-					score = 300 * healthCoefficient;
-					addHealth += maxHealth * healthCoefficient * 0.02;
-					ss = false;
-					cools++;
-				case 'sick':
-					if (health < 2)
-						addHealth += maxHealth * healthCoefficient * 0.04;
-					score = 350;
-					sicks++;
-				case 'boom':
-					daRating = 'boom';
-					addHealth -= maxHealth * 0.12;
-					score = -350;
-					bombs++;
-			}
-			
-			if((daNote.jumpID != -1 && !Note.hitIDs.contains(daNote.jumpID)) || daNote.jumpID == -1)
-			{
-				songScore += Math.round(score);
-				health += addHealth;
-			}
-
-			var pixelShitPart1:String = "";
-			var pixelShitPart2:String = '';
-	
-			if (curStage.startsWith('school'))
-			{
-				pixelShitPart1 = 'weeb/pixelUI/';
-				pixelShitPart2 = '-pixel';
-			}
-
-			if(daRating == 'boom')
-			{
-				rating.loadGraphic(Paths.image(pixelShitPart1 + daRating + pixelShitPart2));
-				rating.screenCenter();
-				rating.x = daNote.x;
-				rating.y = strumLine.y;
-				FlxG.sound.play(Paths.sound('boom'));
-				FlxG.sound.play(Paths.sound('boom')); // lol it needs to be loud
-			}
-			else
-			{
-				rating.loadGraphic(Paths.image(pixelShitPart1 + daRating + pixelShitPart2));
-				rating.screenCenter();
-				rating.y -= 50;
-				if(FlxG.save.data.centerArrows)
-					rating.x = coolText.x + 256;
-				else
-					rating.x = coolText.x - 256;
-				rating.acceleration.y = 550;
-				rating.velocity.y -= FlxG.random.int(140, 175);
-				rating.velocity.x -= FlxG.random.int(0, 10);
-			}
-
-			#if debug
-			var msTiming = truncateFloat(noteDiff, 3);
-			if (currentTimingShown != null)
-				remove(currentTimingShown);
-
-			currentTimingShown = new FlxText(0,0,0,"0ms");
-			timeShown = 0;
-			switch(daRating)
-			{
-				case 'shit' | 'bad':
-					currentTimingShown.color = FlxColor.RED;
-				case 'good':
-					currentTimingShown.color = FlxColor.GREEN;
-				case 'sick':
-					currentTimingShown.color = FlxColor.CYAN;
-			}
-			currentTimingShown.borderStyle = OUTLINE;
-			currentTimingShown.borderSize = 1;
-			currentTimingShown.borderColor = FlxColor.BLACK;
-			currentTimingShown.text = msTiming + "ms";
-			currentTimingShown.size = 20;
-
-			if (currentTimingShown.alpha != 1)
-				currentTimingShown.alpha = 1;
-
-			add(currentTimingShown);
-			#end
-			var comboSpr:FlxSprite = new FlxSprite().loadGraphic(Paths.image(pixelShitPart1 + 'combo' + pixelShitPart2));
-			comboSpr.screenCenter();
-			comboSpr.x = rating.x;
-			comboSpr.y = rating.y + 100;
-			comboSpr.acceleration.y = 600;
-			comboSpr.velocity.y -= 150;
-
-			#if debug
-			currentTimingShown.screenCenter();
-			currentTimingShown.x = comboSpr.x + 100;
-			currentTimingShown.y = rating.y + 100;
-			currentTimingShown.acceleration.y = 600;
-			currentTimingShown.velocity.y -= 150;
-			#end
-
-			comboSpr.velocity.x += FlxG.random.int(1, 10);
-
-			#if debug
-			currentTimingShown.velocity.x += comboSpr.velocity.x;
-			#end
-
-			add(rating);
-	
-			if (!curStage.startsWith('school'))
-			{
-				rating.setGraphicSize(Std.int(rating.width * 0.7));
-				rating.antialiasing = true;
-				comboSpr.setGraphicSize(Std.int(comboSpr.width * 0.7));
-				comboSpr.antialiasing = true;
-			}
-			else
-			{
-				rating.setGraphicSize(Std.int(rating.width * daPixelZoom * 0.7));
-				comboSpr.setGraphicSize(Std.int(comboSpr.width * daPixelZoom * 0.7));
-			}
-	
-			#if debug
-			currentTimingShown.updateHitbox();
-			#end
-
-			comboSpr.updateHitbox();
-			rating.updateHitbox();
-	
-			#if debug
-			currentTimingShown.cameras = [camNote];
-			#end
-			comboSpr.cameras = [camNote];
-			rating.cameras = [camNote];
-
-			var seperatedScore:Array<Int> = [];
-	
-			var comboSplit:Array<String> = (combo + "").split('');
-
-			if (comboSplit.length == 2)
-				seperatedScore.push(0); // make sure theres a 0 in front or it looks weird lol!
-
-			for(i in 0...comboSplit.length)
-			{
-				var str:String = comboSplit[i];
-				seperatedScore.push(Std.parseInt(str));
-			}
-	
-			var daLoop:Int = 0;
-			for (i in seperatedScore)
-			{
-				var numScore:FlxSprite = new FlxSprite().loadGraphic(Paths.image(pixelShitPart1 + 'num' + Std.int(i) + pixelShitPart2));
-				numScore.screenCenter();
-				numScore.x = rating.x + (43 * daLoop) - 50;
-				numScore.y = rating.y + 100;
-				numScore.cameras = [camNote];
-
-				if (!curStage.startsWith('school'))
-				{
-					numScore.antialiasing = true;
-					numScore.setGraphicSize(Std.int(numScore.width * 0.5));
-				}
-				else
-				{
-					numScore.setGraphicSize(Std.int(numScore.width * daPixelZoom));
-				}
-				numScore.updateHitbox();
-	
-				numScore.acceleration.y = FlxG.random.int(200, 300);
-				numScore.velocity.y -= FlxG.random.int(140, 160);
-				numScore.velocity.x = FlxG.random.float(-5, 5);
-	
-				if (combo >= 10 || combo == 0)
-					add(numScore);
-	
-				FlxTween.tween(numScore, {alpha: 0}, 0.2, {
-					onComplete: function(tween:FlxTween)
-					{
-						numScore.destroy();
-					},
-					startDelay: Conductor.crochet * 0.002
-				});
-	
-				daLoop++;
-			}
-			/* 
-				#if debug
-trace(combo);
-#end
-				#if debug
-trace(seperatedScore);
-#end
-			 */
-	
-			coolText.text = Std.string(seperatedScore);
-			// add(coolText);
-	
-			FlxTween.tween(rating, {alpha: 0}, 0.2, {
-				startDelay: Conductor.crochet * 0.001,
-				onUpdate: function(tween:FlxTween)
-				{
-					#if debug
-					if (currentTimingShown != null)
-						currentTimingShown.alpha -= 0.02;
-					#end
-					timeShown++;
-				}
-			});
-
-			FlxTween.tween(comboSpr, {alpha: 0}, 0.2, {
-				onComplete: function(tween:FlxTween)
-				{
-					coolText.destroy();
-					comboSpr.destroy();
-					#if debug
-					if (currentTimingShown != null && timeShown >= 20)
-					{
-						remove(currentTimingShown);
-						currentTimingShown = null;
-					}
-					#end
-					rating.destroy();
-				},
-				startDelay: Conductor.crochet * 0.001
-			});
-	
-			curSection += 1;
+			case 'shit':
+				combo = 0;
+				score = -200 * healthCoefficient;
+				addHealth -= maxHealth * 0.075;
+				ss = false;
+				shits++;
+			case 'bad':
+				daRating = 'bad';
+				score = -100 * healthCoefficient;
+				addHealth -= maxHealth * 0.025;
+				combo = 0;
+				ss = false;
+				bads++;
+			case 'good':
+				daRating = 'good';
+				score = 200 * healthCoefficient;
+				addHealth += maxHealth * healthCoefficient * 0.01;
+				ss = false;
+				goods++;
+			case 'cool':
+				daRating = 'cool';
+				score = 300 * healthCoefficient;
+				addHealth += maxHealth * healthCoefficient * 0.02;
+				ss = false;
+				cools++;
+			case 'sick':
+				if (health < 2)
+					addHealth += maxHealth * healthCoefficient * 0.04;
+				score = 350;
+				sicks++;
+			case 'boom':
+				daRating = 'boom';
+				addHealth -= maxHealth * 0.12;
+				score = -350;
+				bombs++;
+		}
+		
+		if((daNote.jumpID != -1 && !Note.hitIDs.contains(daNote.jumpID)) || daNote.jumpID == -1)
+		{
+			songScore += Math.round(score);
+			health += addHealth;
 		}
 
-	public function NearlyEquals(value1:Float, value2:Float, unimportantDifference:Float = 10):Bool
+		var pixelShitPart1:String = "";
+		var pixelShitPart2:String = '';
+
+		if (curStage.startsWith('school'))
+		{
+			pixelShitPart1 = 'weeb/pixelUI/';
+			pixelShitPart2 = '-pixel';
+		}
+
+		if(daRating == 'boom')
+		{
+			rating.loadGraphic(Paths.image(pixelShitPart1 + daRating + pixelShitPart2));
+			rating.screenCenter();
+			rating.x = daNote.x;
+			rating.y = strumLine.y;
+			FlxG.sound.play(Paths.sound('boom'));
+			FlxG.sound.play(Paths.sound('boom')); // lol it needs to be loud
+		}
+		else
+		{
+			rating.loadGraphic(Paths.image(pixelShitPart1 + daRating + pixelShitPart2));
+			rating.screenCenter();
+			rating.y -= 50;
+			if(FlxG.save.data.centerArrows)
+				rating.x = coolText.x + 256;
+			else
+				rating.x = coolText.x - 256;
+			rating.acceleration.y = 550;
+			rating.velocity.y -= FlxG.random.int(140, 175);
+			rating.velocity.x -= FlxG.random.int(0, 10);
+		}
+
+		#if debug
+		var msTiming = truncateFloat(noteDiff, 3);
+		if (currentTimingShown != null)
+			remove(currentTimingShown);
+
+		currentTimingShown = new FlxText(0,0,0,"0ms");
+		timeShown = 0;
+		switch(daRating)
+		{
+			case 'shit' | 'bad':
+				currentTimingShown.color = FlxColor.RED;
+			case 'good':
+				currentTimingShown.color = FlxColor.GREEN;
+			case 'sick':
+				currentTimingShown.color = FlxColor.CYAN;
+		}
+		currentTimingShown.borderStyle = OUTLINE;
+		currentTimingShown.borderSize = 1;
+		currentTimingShown.borderColor = FlxColor.BLACK;
+		currentTimingShown.text = msTiming + "ms";
+		currentTimingShown.size = 20;
+
+		if (currentTimingShown.alpha != 1)
+			currentTimingShown.alpha = 1;
+
+		add(currentTimingShown);
+		#end
+		var comboSpr:FlxSprite = new FlxSprite().loadGraphic(Paths.image(pixelShitPart1 + 'combo' + pixelShitPart2));
+		comboSpr.screenCenter();
+		comboSpr.x = rating.x;
+		comboSpr.y = rating.y + 100;
+		comboSpr.acceleration.y = 600;
+		comboSpr.velocity.y -= 150;
+
+		#if debug
+		currentTimingShown.screenCenter();
+		currentTimingShown.x = comboSpr.x + 100;
+		currentTimingShown.y = rating.y + 100;
+		currentTimingShown.acceleration.y = 600;
+		currentTimingShown.velocity.y -= 150;
+		#end
+
+		comboSpr.velocity.x += FlxG.random.int(1, 10);
+
+		#if debug
+		currentTimingShown.velocity.x += comboSpr.velocity.x;
+		#end
+
+		add(rating);
+
+		if (!curStage.startsWith('school'))
+		{
+			rating.setGraphicSize(Std.int(rating.width * 0.7));
+			rating.antialiasing = true;
+			comboSpr.setGraphicSize(Std.int(comboSpr.width * 0.7));
+			comboSpr.antialiasing = true;
+		}
+		else
+		{
+			rating.setGraphicSize(Std.int(rating.width * daPixelZoom * 0.7));
+			comboSpr.setGraphicSize(Std.int(comboSpr.width * daPixelZoom * 0.7));
+		}
+
+		#if debug
+		currentTimingShown.updateHitbox();
+		#end
+
+		comboSpr.updateHitbox();
+		rating.updateHitbox();
+
+		#if debug
+		currentTimingShown.cameras = [camNote];
+		#end
+		comboSpr.cameras = [camNote];
+		rating.cameras = [camNote];
+
+		var seperatedScore:Array<Int> = [];
+
+		var comboSplit:Array<String> = (combo + "").split('');
+
+		if (comboSplit.length == 2)
+			seperatedScore.push(0); // make sure theres a 0 in front or it looks weird lol!
+
+		for(i in 0...comboSplit.length)
+		{
+			var str:String = comboSplit[i];
+			seperatedScore.push(Std.parseInt(str));
+		}
+
+		var daLoop:Int = 0;
+		for (i in seperatedScore)
+		{
+			var numScore:FlxSprite = new FlxSprite().loadGraphic(Paths.image(pixelShitPart1 + 'num' + Std.int(i) + pixelShitPart2));
+			numScore.screenCenter();
+			numScore.x = rating.x + (43 * daLoop) - 50;
+			numScore.y = rating.y + 100;
+			numScore.cameras = [camNote];
+
+			if (!curStage.startsWith('school'))
+			{
+				numScore.antialiasing = true;
+				numScore.setGraphicSize(Std.int(numScore.width * 0.5));
+			}
+			else
+			{
+				numScore.setGraphicSize(Std.int(numScore.width * daPixelZoom));
+			}
+			numScore.updateHitbox();
+
+			numScore.acceleration.y = FlxG.random.int(200, 300);
+			numScore.velocity.y -= FlxG.random.int(140, 160);
+			numScore.velocity.x = FlxG.random.float(-5, 5);
+
+			if (combo >= 10 || combo == 0)
+				add(numScore);
+
+			FlxTween.tween(numScore, {alpha: 0}, 0.2, {
+				onComplete: function(tween:FlxTween)
+				{
+					numScore.destroy();
+				},
+				startDelay: Conductor.crochet * 0.002
+			});
+
+			daLoop++;
+		}
+		/* 
+			#if debug
+trace(combo);
+#end
+			#if debug
+trace(seperatedScore);
+#end
+			*/
+
+		coolText.text = Std.string(seperatedScore);
+		// add(coolText);
+
+		FlxTween.tween(rating, {alpha: 0}, 0.2, {
+			startDelay: Conductor.crochet * 0.001,
+			onUpdate: function(tween:FlxTween)
+			{
+				#if debug
+				if (currentTimingShown != null)
+					currentTimingShown.alpha -= 0.02;
+				#end
+				timeShown++;
+			}
+		});
+
+		FlxTween.tween(comboSpr, {alpha: 0}, 0.2, {
+			onComplete: function(tween:FlxTween)
+			{
+				coolText.destroy();
+				comboSpr.destroy();
+				#if debug
+				if (currentTimingShown != null && timeShown >= 20)
+				{
+					remove(currentTimingShown);
+					currentTimingShown = null;
+				}
+				#end
+				rating.destroy();
+			},
+			startDelay: Conductor.crochet * 0.001
+		});
+
+		curSection += 1;
+	}
+
+	public function popUpSMScore(rating:String, noteDiff:Float, note:SMNote):Void
+	{
+		trace('popup');
+		// boyfriend.playAnim('hey');
+		vocals.volume = 1;
+
+		var placement:String = Std.string(combo);
+
+		var coolText:FlxText = new FlxText(0, 0, 0, placement, 32);
+		coolText.screenCenter();
+		coolText.x = FlxG.width * 0.55;
+		coolText.y -= 350;
+		coolText.cameras = [camNote];
+		//
+
+		var ratingSpr:FlxSprite = new FlxSprite();
+		var score:Float = 350;
+
+		var healthCoefficient:Float = note.noteType == '2' ? 0.5 : 1.0;
+		var addHealth:Float = 0;
+		switch(rating)
+		{
+			case 'shit':
+				combo = 0;
+				score = -200 * healthCoefficient;
+				addHealth -= maxHealth * 0.075;
+				ss = false;
+				shits++;
+			case 'bad':
+				score = -100 * healthCoefficient;
+				addHealth -= maxHealth * 0.025;
+				combo = 0;
+				ss = false;
+				bads++;
+			case 'good':
+				score = 200 * healthCoefficient;
+				addHealth += maxHealth * healthCoefficient * 0.01;
+				ss = false;
+				goods++;
+			case 'cool':
+				score = 300 * healthCoefficient;
+				addHealth += maxHealth * healthCoefficient * 0.02;
+				ss = false;
+				cools++;
+			case 'sick':
+				if (health < 2)
+					addHealth += maxHealth * healthCoefficient * 0.04;
+				score = 350;
+				sicks++;
+			case 'boom':
+				addHealth -= maxHealth * 0.12;
+				score = -350;
+				bombs++;
+		}
+		
+		if((note.jumpID != -1 && !SMSONG.hitIDs.contains(note.jumpID)) || note.jumpID == -1)
+		{
+			songScore += Math.round(score);
+			health += addHealth;
+		}
+
+		var pixelShitPart1:String = "";
+		var pixelShitPart2:String = '';
+
+		if (curStage.startsWith('school'))
+		{
+			pixelShitPart1 = 'weeb/pixelUI/';
+			pixelShitPart2 = '-pixel';
+		}
+
+		if(rating == 'boom')
+		{
+			ratingSpr.loadGraphic(Paths.image(pixelShitPart1 + rating + pixelShitPart2));
+			ratingSpr.screenCenter();
+			ratingSpr.x = note.x;
+			ratingSpr.y = strumLine.y;
+			FlxG.sound.play(Paths.sound('boom'));
+			FlxG.sound.play(Paths.sound('boom')); // lol it needs to be loud
+		}
+		else
+		{
+			ratingSpr.loadGraphic(Paths.image(pixelShitPart1 + rating + pixelShitPart2));
+			ratingSpr.screenCenter();
+			ratingSpr.y -= 50;
+			if(FlxG.save.data.centerArrows)
+				ratingSpr.x = coolText.x + 256;
+			else
+				ratingSpr.x = coolText.x - 256;
+			ratingSpr.acceleration.y = 550;
+			ratingSpr.velocity.y -= FlxG.random.int(140, 175);
+			ratingSpr.velocity.x -= FlxG.random.int(0, 10);
+		}
+
+		#if debug
+		var msTiming = truncateFloat(noteDiff, 3);
+		if (currentTimingShown != null)
+			remove(currentTimingShown);
+
+		currentTimingShown = new FlxText(0,0,0,"0ms");
+		timeShown = 0;
+		switch(rating)
+		{
+			case 'shit' | 'bad':
+				currentTimingShown.color = FlxColor.RED;
+			case 'good':
+				currentTimingShown.color = FlxColor.GREEN;
+			case 'sick':
+				currentTimingShown.color = FlxColor.CYAN;
+		}
+		currentTimingShown.borderStyle = OUTLINE;
+		currentTimingShown.borderSize = 1;
+		currentTimingShown.borderColor = FlxColor.BLACK;
+		currentTimingShown.text = msTiming + "ms";
+		currentTimingShown.size = 20;
+
+		if (currentTimingShown.alpha != 1)
+			currentTimingShown.alpha = 1;
+
+		add(currentTimingShown);
+		#end
+		var comboSpr:FlxSprite = new FlxSprite().loadGraphic(Paths.image(pixelShitPart1 + 'combo' + pixelShitPart2));
+		comboSpr.screenCenter();
+		comboSpr.x = ratingSpr.x;
+		comboSpr.y = ratingSpr.y + 100;
+		comboSpr.acceleration.y = 600;
+		comboSpr.velocity.y -= 150;
+
+		#if debug
+		currentTimingShown.screenCenter();
+		currentTimingShown.x = comboSpr.x + 100;
+		currentTimingShown.y = ratingSpr.y + 100;
+		currentTimingShown.acceleration.y = 600;
+		currentTimingShown.velocity.y -= 150;
+		#end
+
+		comboSpr.velocity.x += FlxG.random.int(1, 10);
+
+		#if debug
+		currentTimingShown.velocity.x += comboSpr.velocity.x;
+		#end
+
+		add(ratingSpr);
+
+		if (!curStage.startsWith('school'))
+		{
+			ratingSpr.setGraphicSize(Std.int(ratingSpr.width * 0.7));
+			ratingSpr.antialiasing = true;
+			comboSpr.setGraphicSize(Std.int(comboSpr.width * 0.7));
+			comboSpr.antialiasing = true;
+		}
+		else
+		{
+			ratingSpr.setGraphicSize(Std.int(ratingSpr.width * daPixelZoom * 0.7));
+			comboSpr.setGraphicSize(Std.int(comboSpr.width * daPixelZoom * 0.7));
+		}
+
+		#if debug
+		currentTimingShown.updateHitbox();
+		#end
+
+		comboSpr.updateHitbox();
+		ratingSpr.updateHitbox();
+
+		#if debug
+		currentTimingShown.cameras = [camNote];
+		#end
+		comboSpr.cameras = [camNote];
+		ratingSpr.cameras = [camNote];
+
+		var seperatedScore:Array<Int> = [];
+
+		var comboSplit:Array<String> = (combo + "").split('');
+
+		if (comboSplit.length == 2)
+			seperatedScore.push(0); // make sure theres a 0 in front or it looks weird lol!
+
+		for(i in 0...comboSplit.length)
+		{
+			var str:String = comboSplit[i];
+			seperatedScore.push(Std.parseInt(str));
+		}
+
+		var daLoop:Int = 0;
+		for (i in seperatedScore)
+		{
+			var numScore:FlxSprite = new FlxSprite().loadGraphic(Paths.image(pixelShitPart1 + 'num' + Std.int(i) + pixelShitPart2));
+			numScore.screenCenter();
+			numScore.x = ratingSpr.x + (43 * daLoop) - 50;
+			numScore.y = ratingSpr.y + 100;
+			numScore.cameras = [camNote];
+
+			if (!curStage.startsWith('school'))
+			{
+				numScore.antialiasing = true;
+				numScore.setGraphicSize(Std.int(numScore.width * 0.5));
+			}
+			else
+			{
+				numScore.setGraphicSize(Std.int(numScore.width * daPixelZoom));
+			}
+			numScore.updateHitbox();
+
+			numScore.acceleration.y = FlxG.random.int(200, 300);
+			numScore.velocity.y -= FlxG.random.int(140, 160);
+			numScore.velocity.x = FlxG.random.float(-5, 5);
+
+			if (combo >= 10 || combo == 0)
+				add(numScore);
+
+			FlxTween.tween(numScore, {alpha: 0}, 0.2, {
+				onComplete: function(tween:FlxTween)
+				{
+					numScore.destroy();
+				},
+				startDelay: Conductor.crochet * 0.002
+			});
+
+			daLoop++;
+		}
+		/* 
+			#if debug
+trace(combo);
+#end
+			#if debug
+trace(seperatedScore);
+#end
+			*/
+
+		coolText.text = Std.string(seperatedScore);
+		// add(coolText);
+
+		FlxTween.tween(ratingSpr, {alpha: 0}, 0.2, {
+			startDelay: Conductor.crochet * 0.001,
+			onUpdate: function(tween:FlxTween)
+			{
+				#if debug
+				if (currentTimingShown != null)
+					currentTimingShown.alpha -= 0.02;
+				#end
+				timeShown++;
+			}
+		});
+
+		FlxTween.tween(comboSpr, {alpha: 0}, 0.2, {
+			onComplete: function(tween:FlxTween)
+			{
+				coolText.destroy();
+				comboSpr.destroy();
+				#if debug
+				if (currentTimingShown != null && timeShown >= 20)
+				{
+					remove(currentTimingShown);
+					currentTimingShown = null;
+				}
+				#end
+				ratingSpr.destroy();
+			},
+			startDelay: Conductor.crochet * 0.001
+		});
+
+		curSection += 1;
+	}
+	
+
+	public static function NearlyEquals(value1:Float, value2:Float, unimportantDifference:Float = 10):Bool
 	{
 		return Math.abs(FlxMath.roundDecimal(value1, 1) - FlxMath.roundDecimal(value2, 1)) < unimportantDifference;
 	}
@@ -2810,7 +3074,7 @@ trace(seperatedScore);
 		});
 	}
 
-	function noteMiss(direction:Int = 1, daNote:Note):Void
+	public function noteMiss(direction:Int = 1, daNote:Note):Void
 	{
 		if (!boyfriend.stunned && daNote.noteType != 1 && !daNote.isSustainNote)
 		{
@@ -2844,6 +3108,40 @@ trace(seperatedScore);
 			}
 		}
 	}
+
+	public function smNoteMiss(direction:Int = 1, daNote:SMNote):Void
+	{
+		if (!boyfriend.stunned && (daNote.noteType == '1' || daNote.noteType == '2'))
+		{
+			health -= maxHealth * 0.08;
+			if (combo > 5 && gf.animOffsets.exists('sad'))
+			{
+				gf.playAnim('sad');
+			}
+			combo = 0;
+			
+			misses++;
+
+			songScore -= 350;
+
+			FlxG.sound.play(Paths.soundRandom('missnote', 1, 3), FlxG.random.float(0.1, 0.2));
+			// FlxG.sound.play(Paths.sound('missnote1'), 1, false);
+			// FlxG.log.add('played imss note');
+
+			switch (direction)
+			{
+				case 0:
+					boyfriend.playAnim('singLEFTmiss', true);
+				case 1:
+					boyfriend.playAnim('singDOWNmiss', true);
+				case 2:
+					boyfriend.playAnim('singUPmiss', true);
+				case 3:
+					boyfriend.playAnim('singRIGHTmiss', true);
+			}
+		}
+	}
+
 
 	function goodNoteHit(note:Note):Void
 	{

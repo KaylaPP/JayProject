@@ -50,7 +50,16 @@ class FNFSongOptionSubState extends MusicBeatSubstate
 			{
 				case 0:
 					var rowTitle:FlxText = new FlxText(37, 25 + i * 50).setFormat(Paths.font("vcr.ttf"), 32, FlxColor.WHITE, RIGHT);
-					rowTitle.text = "Scroll Speed Modifiers: ";
+					var bpms:Array<SMSong.SMBeat> = PlayState.SMSONG.getSMBeatsSortedAsMinToMax(PlayState.SMSONG.metadata.BPMS);
+					if(PlayState.SMSONG != null && PlayState.SMSONG.metadata.BPMS.length > 1)
+					{
+						rowTitle.text = "(" + bpms[0].VAL + ", " + bpms[bpms.length - 1].VAL + ") ";
+					}
+					else 
+					{
+						rowTitle.text = "(" + bpms[0].VAL + ") ";
+					}
+					rowTitle.text += "Scroll Speed Modifiers: ";
 					rowTitle.updateHitbox();
 					add(rowTitle);
 					rowOptions[i].push(rowTitle);
@@ -80,7 +89,7 @@ class FNFSongOptionSubState extends MusicBeatSubstate
 					rowOptions[i].push(scrollSpeedText);
 				case 2:
 					var SMExperiment:FlxText = new FlxText(37, 25 + i * 50).setFormat(Paths.font("vcr.ttf"), 32, FlxColor.WHITE, RIGHT);
-					SMExperiment.text = "EXPERIMENTAL - Play Stepmania version (doesn't work yet)";
+					SMExperiment.text = "EXPERIMENTAL - Play Stepmania version";
 					SMExperiment.updateHitbox();
 					add(SMExperiment);
 					rowOptions[i].push(SMExperiment);
