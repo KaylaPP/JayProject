@@ -96,10 +96,15 @@ class SMSong
         metadata.BPMS.sort((a, b) -> Std.int(a.BEAT - b.BEAT));
         metadata.STOPS.sort((a, b) -> Std.int(a.BEAT - b.BEAT));
 
+        var totalPrevElapsed:Float = 0.0;
         for(i in 0...metadata.BPMS.length - 1)
         {
-            metadata.BPMS[i + 1].TIME = 60000.0 * (metadata.BPMS[i + 1].BEAT - metadata.BPMS[i].BEAT) / (metadata.BPMS[i].VAL) + metadata.BPMS[i].TIME + metadata.OFFSET;
-        }
+            metadata.BPMS[i + 1].TIME = 60000.0 * (metadata.BPMS[i + 1].BEAT - metadata.BPMS[i].BEAT) / (metadata.BPMS[i].VAL) + totalPrevElapsed;
+            trace(totalPrevElapsed);
+            totalPrevElapsed += metadata.BPMS[i + 1].TIME;
+            trace(totalPrevElapsed);
+            trace('');
+        }/*
         // remove duplicates
         while(false)
         {
@@ -124,7 +129,7 @@ class SMSong
             }
             if(breakFromWhile)
                 break;
-        }
+        }*/
         trace(metadata.BPMS);
 
         while(true)
@@ -286,6 +291,11 @@ class SMSong
         // create elapsed time for notes (very difficult)
         // 120 bpm -> 1/120 mpb -> 1/2 spb -> 500 mspb
         // bpm -> 1/bpm -> 60/bpm -> 60*1000/bpm = mspb
+
+        #if debug
+        var prevStrumTime:Float = 0.0;
+        #end
+
         if(metadata.BPMS.length > 1)
         {
             for(i in 0...metadata.BPMS.length)
@@ -295,13 +305,24 @@ class SMSong
                     if(note.getBeat() >= metadata.BPMS[i].BEAT && (i == metadata.BPMS.length - 1 || note.getBeat() < metadata.BPMS[i + 1].BEAT) && !note.timeProcessed)
                     {
                         note.strumTime += metadata.BPMS[i].TIME + 60000.0 * (note.getBeat() - metadata.BPMS[i].BEAT) / metadata.BPMS[i].VAL;
+
+                        #if debug
+                        if(note.strumTime < prevStrumTime)
+                        {
+                            trace('AAAAA');
+                            trace(note.strumTime);
+                            trace(prevStrumTime);
+                            trace(metadata.BPMS[i].TIME);
+                            trace(i);
+                            trace('');
+                        }
+                        prevStrumTime = note.strumTime;
+                        #end
+
                         note.timeProcessed = true;
                         #if debug
-                        if(i > 0)
-                        {
-                            trace(i);
-                            trace(note.strumTime);
-                        }
+                        //trace(i);
+                        //trace(note.strumTime);
                         #end
                     }
                 }
@@ -332,7 +353,6 @@ class SMSong
             {
                 var note = notes[i];
                 note.startY += pixelCoefficient * velocityCoefficient * note.getBeat();
-                note.strumTime += metadata.OFFSET;
             }
         }
 

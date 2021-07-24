@@ -1194,7 +1194,7 @@ trace("isSMSong = " + isSMSong);
 
 		if (!paused)
 		{
-			if(isSMSong)
+			if(isSMSong && !SMSONG.songActive)
 			{
 				var addArray:Array<SMNote> = [];
 				for(note in SMSONG.notes)
@@ -3121,6 +3121,11 @@ trace(seperatedScore);
 			combo = 0;
 			
 			misses++;
+			if(daNote.noteType == '2')
+			{
+				daNote.sustainEnd.dead = true;
+				daNote.sustainPiece.dead = true;
+			}
 
 			songScore -= 350;
 

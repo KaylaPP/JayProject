@@ -229,6 +229,11 @@ class SMNote extends FlxSprite
             }
         });
 
+        if(noteType == '1' || noteType == '2')
+        {
+            kill();
+        }
+
         trace(rating);
         return rating;
     }
