@@ -293,8 +293,12 @@ class SMSong
         // bpm -> 1/bpm -> 60/bpm -> 60*1000/bpm = mspb
 
         #if debug
-        var prevStrumTime:Float = 0.0;
+        var amountprocessed:Int = 0;
         #end
+
+        metadata.BPMS.sort((a, b) -> Std.int(a.BEAT - b.BEAT));
+        metadata.STOPS.sort((a, b) -> Std.int(a.BEAT - b.BEAT));
+        notes.sort((a, b) -> Std.int(a.getBeat() - b.getBeat()));
 
         if(metadata.BPMS.length > 1)
         {
@@ -304,25 +308,19 @@ class SMSong
                 {
                     if(note.getBeat() >= metadata.BPMS[i].BEAT && (i == metadata.BPMS.length - 1 || note.getBeat() < metadata.BPMS[i + 1].BEAT) && !note.timeProcessed)
                     {
-                        note.strumTime += metadata.BPMS[i].TIME + 60000.0 * (note.getBeat() - metadata.BPMS[i].BEAT) / metadata.BPMS[i].VAL;
+                        note.strumTime = metadata.BPMS[i].TIME + 60000.0 * (note.getBeat() - metadata.BPMS[i].BEAT) / metadata.BPMS[i].VAL;
+                        note.timeProcessed = true;
 
                         #if debug
-                        if(note.strumTime < prevStrumTime)
+                        amountprocessed++;
+                        if(note.strumTime < metadata.BPMS[i].TIME)
                         {
                             trace('AAAAA');
                             trace(note.strumTime);
-                            trace(prevStrumTime);
                             trace(metadata.BPMS[i].TIME);
                             trace(i);
                             trace('');
                         }
-                        prevStrumTime = note.strumTime;
-                        #end
-
-                        note.timeProcessed = true;
-                        #if debug
-                        //trace(i);
-                        //trace(note.strumTime);
                         #end
                     }
                 }
@@ -332,10 +330,16 @@ class SMSong
         {
             for(note in notes)
             {
-                note.strumTime += metadata.BPMS[0].TIME + 60000.0 * note.getBeat() / metadata.BPMS[0].VAL;
+                note.strumTime = metadata.BPMS[0].TIME + 60000.0 * note.getBeat() / metadata.BPMS[0].VAL;
                 note.timeProcessed = true;
             }
         }
+
+        #if debug
+        if(amountprocessed != notes.length)
+            trace('you\'re fucked, my guy');
+        #end
+
         /*for(i in 0...metadata.BPMS.length - 1)
         {
             metadata.BPMS[i + 1].TIME = 60000.0 * (metadata.BPMS[i + 1].BEAT - metadata.BPMS[i].BEAT) / (metadata.BPMS[i].VAL) + metadata.BPMS[i].TIME;
@@ -459,6 +463,8 @@ class SMSong
     public function startSong():Void 
     {
         timer = new Timer(0);
+        metadata.BPMS.sort((a, b) -> Std.int(a.BEAT - b.BEAT));
+        metadata.STOPS.sort((a, b) -> Std.int(a.BEAT - b.BEAT));
         timer.run = function() 
         {
             if(songActive)
@@ -473,26 +479,13 @@ class SMSong
                 }
                 else
                 {
-                    var elapsedStart:Float = 0.0;
-                    for(i in 0...metadata.BPMS.length)
-                    {
-                        if(elapsedTime > metadata.BPMS[i].TIME)
-                        {
-                            elapsedStart -= metadata.BPMS[i].TIME;
-                            if(Math.abs(elapsedStart) > Math.abs(elapsedTime))
-                            {
-                                elapsedStart += metadata.BPMS[i].TIME;
-                                break;
-                            }
-                        }
-                    }
-                    
                     var startBeat:SMBeat = metadata.BPMS[0];
-                    for(v in metadata.BPMS)
+                    for(i in 0...metadata.BPMS.length - 1)
                     {
-                        if((v.TIME < elapsedTime || v.BEAT < curStep) && (v.BEAT > startBeat.BEAT || v.TIME > startBeat.TIME))
+                        if(metadata.BPMS[i].TIME < elapsedTime && metadata.BPMS[i].TIME > startBeat.TIME)
                         {
-                            startBeat = v;
+                            startBeat = metadata.BPMS[i];
+                            break;
                         }
                     }
 

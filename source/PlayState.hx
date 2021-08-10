@@ -2885,7 +2885,7 @@ trace(seperatedScore);
 			});
 
 			possibleNotes.sort((a, b) -> Std.int(a.strumTime - b.strumTime));
-					
+
 			while(hasDuplicateNoteData(possibleNotes))
 			{
 				for(i in 0...possibleNotes.length)

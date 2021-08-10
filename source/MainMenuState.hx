@@ -1,5 +1,6 @@
 package;
 
+import flixel.input.keyboard.FlxKey;
 import Controls.KeyboardScheme;
 import flixel.FlxG;
 import flixel.FlxObject;
@@ -114,11 +115,16 @@ class MainMenuState extends MusicBeatState
 
 		// NG.core.calls.event.logEvent('swag').send();
 
+		controls.setKeyboardScheme(KeyboardScheme.Duo(true), true);
 
-		if (FlxG.save.data.dfjk)
-			controls.setKeyboardScheme(KeyboardScheme.Solo, true);
-		else
-			controls.setKeyboardScheme(KeyboardScheme.Duo(true), true);
+		// Custom Keybinds
+		controls.bindKeys(UP, [FlxG.save.data.KEY_UP, FlxKey.UP]);
+		controls.bindKeys(LEFT, [FlxG.save.data.KEY_LEFT, FlxKey.LEFT]);
+		controls.bindKeys(DOWN, [FlxG.save.data.KEY_DOWN, FlxKey.DOWN]);
+		controls.bindKeys(RIGHT, [FlxG.save.data.KEY_RIGHT, FlxKey.RIGHT]);
+		controls.bindKeys(ACCEPT, [FlxG.save.data.KEY_ACCEPT, FlxKey.ENTER]);
+		controls.bindKeys(BACK, [FlxG.save.data.KEY_BACK, FlxKey.ESCAPE]);
+		controls.bindKeys(RESET, [FlxG.save.data.KEY_RESET, FlxKey.R]);
 
 		changeItem();
 

@@ -23,8 +23,8 @@ class MusicBeatState extends FlxUIState
 	{
 		if (transIn != null)
 			#if debug
-trace('reg ' + transIn.region);
-#end
+			trace('reg ' + transIn.region);
+			#end
 
 		super.create();
 	}

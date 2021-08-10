@@ -7,9 +7,6 @@ using StringTools;
 
 class DebugState extends MusicBeatState
 {
-	var sprite:FlxSprite;
-	var index:Int = 0; // max 48
-
     public function new()
     {
         #if sys
