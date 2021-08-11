@@ -159,13 +159,13 @@ class CustomKeybindSubstate extends MusicBeatSubstate
 
                 controls.setKeyboardScheme(Controls.KeyboardScheme.None, true);
 
-                controls.bindKeys(UP,     [FlxG.save.data.KEY_UP, FlxKey.UP]);
-                controls.bindKeys(LEFT,   [FlxG.save.data.KEY_LEFT, FlxKey.LEFT]);
-                controls.bindKeys(DOWN,   [FlxG.save.data.KEY_DOWN, FlxKey.DOWN]);
-                controls.bindKeys(RIGHT,  [FlxG.save.data.KEY_RIGHT, FlxKey.RIGHT]);
-                controls.bindKeys(ACCEPT, [FlxG.save.data.KEY_ACCEPT, FlxKey.ENTER]);
-                controls.bindKeys(BACK,   [FlxG.save.data.KEY_BACK, FlxKey.ESCAPE]);
-                controls.bindKeys(RESET,  [FlxG.save.data.KEY_RESET, FlxKey.R]);
+                controls.bindKeys(UP, [FlxG.save.data.KEY_UP, FlxKey.UP]);
+                controls.bindKeys(LEFT, [FlxG.save.data.KEY_LEFT, FlxKey.LEFT]);
+                controls.bindKeys(DOWN, [FlxG.save.data.KEY_DOWN, FlxKey.DOWN]);
+                controls.bindKeys(RIGHT, [FlxG.save.data.KEY_RIGHT, FlxKey.RIGHT]);
+                controls.bindKeys(ACCEPT, [FlxG.save.data.KEY_ACCEPT]);
+                controls.bindKeys(BACK, [FlxG.save.data.KEY_BACK]);
+                controls.bindKeys(RESET, [FlxG.save.data.KEY_RESET]);
                 close();
             }
         }

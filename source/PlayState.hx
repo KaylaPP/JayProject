@@ -1976,6 +1976,8 @@ trace("isSMSong = " + isSMSong);
 
 		if (!inCutscene)
 		{
+			if(controls.RESET)
+				health = -1;
 			isSMSong ? smKeyShit(elapsed) : keyShit(elapsed);
 		}
 
