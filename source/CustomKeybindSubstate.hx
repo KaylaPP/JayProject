@@ -151,6 +151,8 @@ class CustomKeybindSubstate extends MusicBeatSubstate
                 key = currentKeyBinds[++tempKeyIndex].text;
                 FlxG.save.data.KEY_RESET = key;
 
+                controls.setKeyboardScheme(Controls.KeyboardScheme.None, true);
+
                 controls.bindKeys(UP,     [FlxG.save.data.KEY_UP, FlxKey.UP]);
                 controls.bindKeys(LEFT,   [FlxG.save.data.KEY_LEFT, FlxKey.LEFT]);
                 controls.bindKeys(DOWN,   [FlxG.save.data.KEY_DOWN, FlxKey.DOWN]);

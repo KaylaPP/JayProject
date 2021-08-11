@@ -115,7 +115,7 @@ class MainMenuState extends MusicBeatState
 
 		// NG.core.calls.event.logEvent('swag').send();
 
-		controls.setKeyboardScheme(KeyboardScheme.Duo(true), true);
+		controls.setKeyboardScheme(Controls.KeyboardScheme.None, true);
 
 		// Custom Keybinds
 		controls.bindKeys(UP, [FlxG.save.data.KEY_UP, FlxKey.UP]);
