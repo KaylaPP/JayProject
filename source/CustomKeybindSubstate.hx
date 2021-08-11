@@ -1,3 +1,4 @@
+import flixel.text.FlxText;
 import flixel.util.FlxColor;
 import flixel.input.keyboard.FlxKey;
 import flixel.FlxG;
@@ -17,7 +18,7 @@ class CustomKeybindSubstate extends MusicBeatSubstate
         'RESET'
     ];
     private var bindNames:Array<Alphabet>;
-    private var currentKeyBinds:Array<Alphabet>;
+    private var currentKeyBinds:Array<FlxText>;
     private var keybindIndex:Int = 0;
     private var key:FlxKey;
 
@@ -51,27 +52,27 @@ class CustomKeybindSubstate extends MusicBeatSubstate
 
         // make key x 500 pixels
         var tempindex:Int = -1;
-        currentKeyBinds = new Array<Alphabet>();
+        currentKeyBinds = new Array<FlxText>();
         var keybind:FlxKey = FlxG.save.data.KEY_LEFT;
-        currentKeyBinds.push(new Alphabet(0, 140 + tempindex++ * 70, keybind.toString(), false, false));
+        currentKeyBinds.push(new FlxText(0, 187 + tempindex++ * 70, 0, keybind.toString(), 56));
 
         var keybind:FlxKey = FlxG.save.data.KEY_DOWN;
-        currentKeyBinds.push(new Alphabet(0, 140 + tempindex++ * 70, keybind.toString(), false, false));
+        currentKeyBinds.push(new FlxText(0, 187 + tempindex++ * 70, 0, keybind.toString(), 56));
 
         var keybind:FlxKey = FlxG.save.data.KEY_UP;
-        currentKeyBinds.push(new Alphabet(0, 140 + tempindex++ * 70, keybind.toString(), false, false));
+        currentKeyBinds.push(new FlxText(0, 187 + tempindex++ * 70, 0, keybind.toString(), 56));
 
         var keybind:FlxKey = FlxG.save.data.KEY_RIGHT;
-        currentKeyBinds.push(new Alphabet(0, 140 + tempindex++ * 70, keybind.toString(), false, false));
+        currentKeyBinds.push(new FlxText(0, 187 + tempindex++ * 70, 0, keybind.toString(), 56));
 
         var keybind:FlxKey = FlxG.save.data.KEY_ACCEPT;
-        currentKeyBinds.push(new Alphabet(0, 140 + tempindex++ * 70, keybind.toString(), false, false));
+        currentKeyBinds.push(new FlxText(0, 187 + tempindex++ * 70, 0, keybind.toString(), 56));
 
         var keybind:FlxKey = FlxG.save.data.KEY_BACK;
-        currentKeyBinds.push(new Alphabet(0, 140 + tempindex++ * 70, keybind.toString(), false, false));
+        currentKeyBinds.push(new FlxText(0, 187 + tempindex++ * 70, 0, keybind.toString(), 56));
 
         var keybind:FlxKey = FlxG.save.data.KEY_RESET;
-        currentKeyBinds.push(new Alphabet(0, 140 + tempindex++ * 70, keybind.toString(), false, false));
+        currentKeyBinds.push(new FlxText(0, 187 + tempindex++ * 70, 0, keybind.toString(), 56));
 
         for(kb in currentKeyBinds)
         {
@@ -83,6 +84,11 @@ class CustomKeybindSubstate extends MusicBeatSubstate
     override public function update(elapsed:Float)
     {
         super.update(elapsed);
+
+        for(t in currentKeyBinds)
+        {
+            t.color = 0xFF000000;
+        }
 
         skipbind = false;
 
@@ -169,10 +175,7 @@ class CustomKeybindSubstate extends MusicBeatSubstate
             if(!binding)
             {
                 binding = true;
-                remove(currentKeyBinds[keybindIndex]);
-                currentKeyBinds[keybindIndex] = new Alphabet(0, 140 + 70 * (keybindIndex - 1), "_", false, false);
-                currentKeyBinds[keybindIndex].x = 500;
-                add(currentKeyBinds[keybindIndex]);
+                currentKeyBinds[keybindIndex].text = "_";
                 skipbind = true;
             }
         }
@@ -181,10 +184,7 @@ class CustomKeybindSubstate extends MusicBeatSubstate
         {
             binding = false;
             key = FlxG.keys.firstJustPressed();
-            remove(currentKeyBinds[keybindIndex]);
-            currentKeyBinds[keybindIndex] = new Alphabet(0, 140 + 70 * (keybindIndex - 1), key.toString(), false, false);
-            currentKeyBinds[keybindIndex].x = 500;
-            add(currentKeyBinds[keybindIndex]);
+            currentKeyBinds[keybindIndex].text = key.toString();
         }
     }
 }
