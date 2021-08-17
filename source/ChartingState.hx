@@ -537,6 +537,11 @@ trace('CHECKED!');
 
 		var controlArray:Array<Bool> = [leftP, downP, upP, rightP];
 
+		curRenderedNotes.forEachAlive(function (daNote:Note) 
+		{
+			daNote.alpha = 1.0;
+		});
+
 		if ((upP || rightP || downP || leftP) && writingNotes)
 		{
 			for(i in 0...controlArray.length)
@@ -551,14 +556,14 @@ trace('CHECKED!');
 							if (note[0] == Conductor.songPosition && note[1] % 4 == i)
 							{
 								#if debug
-trace('GAMING');
-#end
+								trace('GAMING');
+								#end
 								_song.notes[curSection].sectionNotes.remove(note);
 							}
 						}
 					#if debug
-trace('adding note');
-#end
+					trace('adding note');
+					#end
 					var noteType:Int = addMines.checked ? 1 : 0;
 					_song.notes[curSection].sectionNotes.push([Conductor.songPosition, i, 0, noteType]);
 					updateGrid();
@@ -572,14 +577,14 @@ trace('adding note');
 		if (curBeat % 4 == 0 && curStep >= 16 * (curSection + 1))
 		{
 			#if debug
-trace(curStep);
-#end
+			trace(curStep);
+			#end
 			#if debug
-trace((_song.notes[curSection].lengthInSteps) * (curSection + 1));
-#end
+			trace((_song.notes[curSection].lengthInSteps) * (curSection + 1));
+			#end
 			#if debug
-trace('DUMBSHIT');
-#end
+			trace('DUMBSHIT');
+			#end
 
 			if (_song.notes[curSection + 1] == null)
 			{
@@ -607,11 +612,9 @@ trace('DUMBSHIT');
 						else
 						{
 							#if debug
-trace('tryin to delete note');
-#end
-							#if debug
-trace(note.noteData);
-#end
+							trace('tryin to delete note');
+							trace(note.noteData);
+							#end
 							deleteNote(note);
 						}
 					}
@@ -987,6 +990,7 @@ trace('SUS NULL');
 			var noteType = i[3];
 
 			var note:Note = new Note(daStrumTime, daNoteInfo % 4, noteType);
+			note.alwaysFullAlpha = true;
 			note.sustainLength = daSus;
 			note.setGraphicSize(GRID_SIZE, GRID_SIZE);
 			note.updateHitbox();
@@ -1040,22 +1044,23 @@ trace('SUS NULL');
 	function deleteNote(note:Note):Void
 	{
 		#if debug
-trace(_song.notes[curSection].sectionNotes);
-#end
+		trace(_song.notes[curSection].sectionNotes);
+		#end
 		for (n in 0..._song.notes[curSection].sectionNotes.length)
 		{
 			var i = _song.notes[curSection].sectionNotes[n];
 			if (i == null)
 				continue;
-			if ((i[0] == note.strumTime + (note.strumTime == 0 ? 0 : 1) 
-				? true : i[0] == note.strumTime) 
-				&& i[1] % 4 == note.noteData)
-				// Why does it do this?
-				// I DONT FUCKING KNOW!!!!!!!!!!!!!!
+
+			var noteData = Math.floor(FlxG.mouse.x / GRID_SIZE);
+
+			if ((i[0] == note.strumTime + (note.strumTime == 0 ? 0 : 1) ? true : i[0] == note.strumTime) 
+				&& i[1] == noteData)
 			{
 				#if debug
-trace('GAMING');
-#end
+				trace('GAMING');
+				#end
+				trace(i);
 				_song.notes[curSection].sectionNotes.remove(i);
 			}
 		}
@@ -1097,11 +1102,9 @@ trace('GAMING');
 		}
 
 		#if debug
-trace(noteStrum);
-#end
-		#if debug
-trace(curSection);
-#end
+		trace(noteStrum);
+		trace(curSection);
+		#end
 
 		updateGrid();
 		updateNoteUI();
