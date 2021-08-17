@@ -13,10 +13,27 @@ import flixel.text.FlxText;
 import flixel.util.FlxColor;
 import lime.utils.Assets;
 
+class Option
+{
+	private var Function:Void->String;
+	public var text:String;
+
+	public function new(Function:Void->String, initText:String)
+	{
+		this.Function = Function;
+		text = initText;
+	}
+
+	public function accept()
+	{
+		text = Function();
+	}
+} 
+
 class OptionsMenu extends MusicBeatState
 {
 	//var selector:FlxText;
-	var curSelected:Int = 1;
+	public static var curSelected:Int = 1;
 
 	var controlsStrings:Array<String> = [];
 
